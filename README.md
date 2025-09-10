@@ -55,6 +55,35 @@ docker compose -f docker-compose.prod.yml up -d
 
 Access the application at [http://localhost:3000/](http://localhost:3000/)
 
+## Deployment
+
+### Production Deployment Options
+
+| Platform | Recommendation | Features | Limitations |
+|----------|---------------|----------|-------------|
+| **Railway** | ✅ **Recommended** | Full multi-service support, PostgreSQL with pgvector, Socket.IO server | Requires billing |
+| **Vercel** | ⚠️ **Partial** | Next.js app, serverless functions, cron jobs | No Socket.IO server, requires external database |
+| **Docker** | ✅ **Self-hosted** | Complete control, all features | Requires infrastructure management |
+
+### Quick Deploy
+
+**Railway (Recommended):**
+```bash
+railway login
+railway new
+railway add --template postgresql-pgvector
+bun run deploy:railway
+```
+
+**Vercel (Partial - Next.js only):**
+```bash
+bun run deploy:vercel
+```
+
+For detailed deployment instructions:
+- [Railway Deployment Guide](./DEPLOY_RAILWAY.md) - Full deployment with all features
+- [Vercel Deployment Guide](./DEPLOY_VERCEL.md) - Partial deployment with limitations
+
 #### Using Local Models with Ollama
 
 Run Sim with local AI models using [Ollama](https://ollama.ai) - no external APIs required:

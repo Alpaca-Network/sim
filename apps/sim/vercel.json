@@ -1,4 +1,8 @@
 {
+  "buildCommand": "cd ../.. && bun install && cd apps/sim && bun run build",
+  "outputDirectory": "apps/sim/.next",
+  "installCommand": "bun install",
+  "framework": "nextjs",
   "crons": [
     {
       "path": "/api/schedules/execute",
@@ -15,6 +19,17 @@
     {
       "path": "/api/logs/cleanup",
       "schedule": "0 0 * * *"
+    }
+  ],
+  "functions": {
+    "apps/sim/app/api/**/*.ts": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/socket.io/(.*)",
+      "destination": "/api/socket-fallback"
     }
   ]
 }

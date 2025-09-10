@@ -14,6 +14,8 @@
     "dev:sockets": "cd apps/sim && bun run dev:sockets",
     "dev:full": "cd apps/sim && bun run dev:full",
     "test": "turbo run test",
+    "deploy:railway": "railway up",
+    "deploy:vercel": "cd apps/sim && vercel --prod",
     "format": "bunx biome format --write .",
     "format:check": "bunx biome format .",
     "lint": "bunx biome check --write --unsafe .",
