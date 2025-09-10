@@ -1,0 +1,419 @@
+
+global:
+  imageRegistry: "ghcr.io"
+  imagePullSecrets: []
+  storageClass: ""
+
+app:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/alpaca-network/sim
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+  
+  env:
+    NEXT_PUBLIC_APP_URL: "https://buildz.ai"
+    BETTER_AUTH_URL: "https://buildz.ai"
+    SOCKET_SERVER_URL: "https://ws.buildz.ai"
+    NEXT_PUBLIC_SOCKET_URL: "https://ws.buildz.ai"
+    OLLAMA_URL: "http://sim-gcp-ollama:11434"
+    BETTER_AUTH_SECRET: "c843875b4e916895c8fe266c902b406b2968eb17c4624868ffbdc24c976f35fc"
+    ENCRYPTION_KEY: "fd74f00158c3d168ed1fcda49e9b2f43abfdc9b363475f6f38d97845fbe555d8"
+    DATABASE_URL: ""
+    NEXT_PUBLIC_POSTHOG_KEY: ""
+    NEXT_PUBLIC_POSTHOG_HOST: ""
+    OPENAI_API_KEY: ""
+    ANTHROPIC_API_KEY: ""
+    AZURE_OPENAI_API_KEY: ""
+    AZURE_OPENAI_ENDPOINT: ""
+    AZURE_OPENAI_API_VERSION: ""
+    GOOGLE_CLIENT_ID: ""
+    GOOGLE_CLIENT_SECRET: ""
+    GITHUB_CLIENT_ID: ""
+    GITHUB_CLIENT_SECRET: ""
+    TRIGGER_SECRET_KEY: ""
+    NEXT_PUBLIC_TRIGGER_PUBLIC_KEY: ""
+    NEXT_PUBLIC_TRIGGER_API_URL: ""
+    UPSTASH_REDIS_REST_URL: ""
+    UPSTASH_REDIS_REST_TOKEN: ""
+    RESEND_API_KEY: ""
+    NEXT_PUBLIC_CRISP_WEBSITE_ID: ""
+    STRIPE_SECRET_KEY: ""
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ""
+    STRIPE_WEBHOOK_SECRET: ""
+    NEXT_PUBLIC_LEMONSQUEEZY_STORE_ID: ""
+    LEMONSQUEEZY_API_KEY: ""
+    LEMONSQUEEZY_WEBHOOK_SECRET: ""
+    NEXT_PUBLIC_SENTRY_DSN: ""
+    SENTRY_ORG: ""
+    SENTRY_PROJECT: ""
+    SENTRY_AUTH_TOKEN: ""
+
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - sim
+            - key: app.kubernetes.io/component
+              operator: In
+              values:
+              - app
+          topologyKey: kubernetes.io/hostname
+
+  nodeSelector:
+    cloud.google.com/gke-nodepool: default-pool
+
+  tolerations: []
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    fsGroup: 1001
+
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: false
+    runAsNonRoot: true
+    runAsUser: 1001
+
+realtime:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/alpaca-network/sim
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  service:
+    type: ClusterIP
+    port: 3002
+    targetPort: 3002
+  
+  env:
+    NEXT_PUBLIC_APP_URL: "https://buildz.ai"
+    BETTER_AUTH_URL: "https://buildz.ai"
+    NEXT_PUBLIC_SOCKET_URL: "https://ws.buildz.ai"
+    ALLOWED_ORIGINS: "https://buildz.ai"
+    BETTER_AUTH_SECRET: "c843875b4e916895c8fe266c902b406b2968eb17c4624868ffbdc24c976f35fc"
+    DATABASE_URL: ""
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - sim
+            - key: app.kubernetes.io/component
+              operator: In
+              values:
+              - realtime
+          topologyKey: kubernetes.io/hostname
+
+  nodeSelector:
+    cloud.google.com/gke-nodepool: default-pool
+
+  tolerations: []
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    fsGroup: 1001
+
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: false
+    runAsNonRoot: true
+    runAsUser: 1001
+
+postgresql:
+  enabled: true
+  auth:
+    enablePostgresUser: true
+    postgresPassword: "e7bd24110e20d2884511761bbd1d8e5e55e570a68631bbc47b96a2bb23d10454"
+    username: "simstudio"
+    password: "e7bd24110e20d2884511761bbd1d8e5e55e570a68631bbc47b96a2bb23d10454"
+    database: "simstudio"
+  
+  primary:
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+    
+    persistence:
+      enabled: true
+      storageClass: "standard-rwo"
+      size: 100Gi
+    
+    nodeSelector:
+      cloud.google.com/gke-nodepool: default-pool
+    
+    tolerations: []
+    
+    securityContext:
+      enabled: true
+      fsGroup: 1001
+    
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+
+  metrics:
+    enabled: true
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
+
+externalDatabase:
+  enabled: false
+
+ollama:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: ollama/ollama
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  resources:
+    limits:
+      nvidia.com/gpu: "1"
+      cpu: 4000m
+      memory: 8Gi
+    requests:
+      nvidia.com/gpu: "1"
+      cpu: 2000m
+      memory: 4Gi
+  
+  nodeSelector:
+    cloud.google.com/gke-nodepool: gpu-pool
+    cloud.google.com/gke-accelerator: nvidia-tesla-t4
+  
+  tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule
+  
+  persistence:
+    enabled: true
+    storageClass: "standard-rwo"
+    size: 50Gi
+  
+  securityContext:
+    runAsNonRoot: false
+    runAsUser: 0
+    fsGroup: 0
+  
+  containerSecurityContext:
+    allowPrivilegeEscalation: true
+    capabilities:
+      add:
+      - SYS_ADMIN
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+    runAsUser: 0
+
+ingress:
+  enabled: true
+  className: "gce"
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "simstudio-ip"
+    networking.gke.io/managed-certificates: "buildz-ssl-cert"
+    kubernetes.io/ingress.class: "gce"
+    cloud.google.com/neg: '{"ingress": true}'
+    cloud.google.com/backend-config: '{"default": "sim-backend-config"}'
+  
+  app:
+    enabled: true
+    host: buildz.ai
+    paths:
+    - path: /
+      pathType: Prefix
+  
+  realtime:
+    enabled: true
+    host: ws.buildz.ai
+    paths:
+    - path: /
+      pathType: Prefix
+
+service:
+  app:
+    type: NodePort
+    port: 80
+    targetPort: 3000
+    nodePort: 30080
+  
+  realtime:
+    type: NodePort
+    port: 80
+    targetPort: 3002
+    nodePort: 30082
+  
+  postgresql:
+    type: ClusterIP
+    port: 5432
+  
+  ollama:
+    type: ClusterIP
+    port: 11434
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations:
+    iam.gke.io/gcp-service-account: "sim-workload-identity@buildz-471215.iam.gserviceaccount.com"
+  name: "sim-service-account"
+
+podSecurityPolicy:
+  enabled: false
+
+networkPolicy:
+  enabled: true
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    - namespaceSelector:
+        matchLabels:
+          name: gke-system
+  - from: []
+    ports:
+    - protocol: TCP
+      port: 3000
+    - protocol: TCP
+      port: 3002
+  egress:
+  - {}
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 5432
+    - protocol: TCP
+      port: 11434
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+
+monitoring:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    namespace: simstudio
+    interval: 30s
+    scrapeTimeout: 10s
+  
+  prometheusRule:
+    enabled: false
+    namespace: simstudio
+    rules:
+    - alert: SimAppDown
+      expr: up{job="sim-app"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Sim application is down"
+        description: "Sim application has been down for more than 5 minutes"
+    
+    - alert: SimHighCPU
+      expr: rate(container_cpu_usage_seconds_total{pod=~"sim-app-.*"}[5m]) > 0.8
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage on Sim application"
+        description: "CPU usage is above 80% for more than 10 minutes"
+    
+    - alert: SimHighMemory
+      expr: container_memory_usage_bytes{pod=~"sim-app-.*"} / container_spec_memory_limit_bytes > 0.9
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory usage on Sim application"
+        description: "Memory usage is above 90% for more than 5 minutes"
+
+tests:
+  enabled: false
