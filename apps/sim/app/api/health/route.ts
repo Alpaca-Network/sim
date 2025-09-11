@@ -5,7 +5,7 @@ export async function GET() {
     return NextResponse.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      service: 'sim-app'
+      service: 'sim-app',
     })
   } catch (error) {
     return NextResponse.json(
@@ -13,7 +13,7 @@ export async function GET() {
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
         service: 'sim-app',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
