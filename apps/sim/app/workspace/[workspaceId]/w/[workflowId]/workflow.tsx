@@ -78,7 +78,7 @@ const WorkflowContent = React.memo(() => {
   // Hooks
   const params = useParams()
   const router = useRouter()
-  const { project, getNodes, fitView } = useReactFlow()
+  const { screenToFlowPosition, getNodes, fitView } = useReactFlow()
 
   // Get workspace ID from the params
   const workspaceId = params.workspaceId as string
@@ -491,7 +491,7 @@ const WorkflowContent = React.memo(() => {
         const name = type === 'loop' ? `Loop ${blockNumber}` : `Parallel ${blockNumber}`
 
         // Calculate the center position of the viewport
-        const centerPosition = project({
+        const centerPosition = screenToFlowPosition({
           x: window.innerWidth / 2,
           y: window.innerHeight / 2,
         })
@@ -542,7 +542,7 @@ const WorkflowContent = React.memo(() => {
       }
 
       // Calculate the center position of the viewport
-      const centerPosition = project({
+      const centerPosition = screenToFlowPosition({
         x: window.innerWidth / 2,
         y: window.innerHeight / 2,
       })
@@ -604,10 +604,9 @@ const WorkflowContent = React.memo(() => {
         const data = JSON.parse(event.dataTransfer.getData('application/json'))
         if (data.type === 'connectionBlock') return
 
-        const reactFlowBounds = event.currentTarget.getBoundingClientRect()
-        const position = project({
-          x: event.clientX - reactFlowBounds.left,
-          y: event.clientY - reactFlowBounds.top,
+        const position = screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
         })
 
         // Check if dropping inside a container node (loop or parallel)
@@ -822,10 +821,9 @@ const WorkflowContent = React.memo(() => {
       if (!event.dataTransfer?.types.includes('application/json')) return
 
       try {
-        const reactFlowBounds = event.currentTarget.getBoundingClientRect()
-        const position = project({
-          x: event.clientX - reactFlowBounds.left,
-          y: event.clientY - reactFlowBounds.top,
+        const position = screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
         })
 
         // Check if hovering over a container node
