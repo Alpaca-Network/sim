@@ -185,7 +185,6 @@
             },
             "OLLAMA_URL": {
               "type": "string",
-              "format": "uri",
               "description": "Ollama local LLM server URL"
             },
             "ELEVENLABS_API_KEY": {

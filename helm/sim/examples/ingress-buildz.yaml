@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sim-ingress
+  namespace: simstudio
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "simstudio-ip"
+    networking.gke.io/managed-certificates: "buildz-ssl-cert"
+    kubernetes.io/ingress.class: "gce"
+    cloud.google.com/backend-config: '{"default": "sim-backend-config"}'
+spec:
+  rules:
+  - host: buildz.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sim-gcp-app
+            port:
+              number: 3000
+  - host: ws.buildz.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: sim-gcp-realtime
+            port:
+              number: 3002
