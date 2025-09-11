@@ -1,20 +1,24 @@
 
 global:
-  imageRegistry: "ghcr.io"
+  imageRegistry: "gcr.io"
   imagePullSecrets: []
   storageClass: ""
+
+migrations:
+  enabled: false
 
 app:
   replicaCount: 2
   image:
-    repository: ghcr.io/alpaca-network/sim
+    repository: gcr.io/buildz-471215/sim-app
     pullPolicy: IfNotPresent
     tag: "latest"
   
   service:
-    type: ClusterIP
+    type: NodePort
     port: 3000
     targetPort: 3000
+    nodePort: 30080
   
   env:
     NEXT_PUBLIC_APP_URL: "https://buildz.ai"
@@ -109,17 +113,37 @@ app:
     runAsNonRoot: true
     runAsUser: 1001
 
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+      scheme: HTTP
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+
+extraVolumes:
+  - name: uploads
+    emptyDir: {}
+
+extraVolumeMounts:
+  - name: uploads
+    mountPath: /app/apps/sim/uploads
+
 realtime:
   replicaCount: 2
   image:
-    repository: ghcr.io/alpaca-network/sim
+    repository: gcr.io/buildz-471215/sim-realtime
     pullPolicy: IfNotPresent
     tag: "latest"
   
   service:
-    type: ClusterIP
+    type: NodePort
     port: 3002
     targetPort: 3002
+    nodePort: 30082
   
   env:
     NEXT_PUBLIC_APP_URL: "https://buildz.ai"
