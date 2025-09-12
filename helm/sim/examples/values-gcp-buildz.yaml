@@ -7,9 +7,9 @@ global:
 app:
   replicaCount: 2
   image:
-    repository: ghcr.io/alpaca-network/sim
+    repository: gcr.io/buildz-471215/sim-app
     pullPolicy: IfNotPresent
-    tag: "latest"
+    tag: "1757700630"
   
   service:
     type: ClusterIP
@@ -112,7 +112,7 @@ app:
 realtime:
   replicaCount: 2
   image:
-    repository: ghcr.io/alpaca-network/sim
+    repository: gcr.io/buildz-471215/sim-realtime
     pullPolicy: IfNotPresent
     tag: "latest"
   

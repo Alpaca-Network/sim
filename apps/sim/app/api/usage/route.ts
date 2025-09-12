@@ -1,6 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
-import { getUserUsageLimitInfo, updateUserUsageLimit } from '@/lib/billing'
+import {
+  getUserUsageLimitInfo,
+  initializeUserUsageLimit,
+  updateUserUsageLimit,
+} from '@/lib/billing'
 import {
   getOrganizationBillingData,
   isOrganizationOwnerOrAdmin,
@@ -58,15 +62,33 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    const usageLimitInfo = await getUserUsageLimitInfo(userId)
+    try {
+      const usageLimitInfo = await getUserUsageLimitInfo(userId)
 
-    return NextResponse.json({
-      success: true,
-      context,
-      userId,
-      organizationId,
-      data: usageLimitInfo,
-    })
+      return NextResponse.json({
+        success: true,
+        context,
+        userId,
+        organizationId,
+        data: usageLimitInfo,
+      })
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('User stats not found')) {
+        logger.info('Initializing user stats for new user', { userId })
+        await initializeUserUsageLimit(userId)
+
+        const usageLimitInfo = await getUserUsageLimitInfo(userId)
+        return NextResponse.json({
+          success: true,
+          context,
+          userId,
+          organizationId,
+          data: usageLimitInfo,
+        })
+      }
+
+      throw error
+    }
   } catch (error) {
     logger.error('Failed to get usage limit info', {
       userId: session?.user?.id,
@@ -131,15 +153,33 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ success: true, context, userId, organizationId, data: updated })
     }
 
-    const updatedInfo = await getUserUsageLimitInfo(userId)
+    try {
+      const updatedInfo = await getUserUsageLimitInfo(userId)
 
-    return NextResponse.json({
-      success: true,
-      context,
-      userId,
-      organizationId,
-      data: updatedInfo,
-    })
+      return NextResponse.json({
+        success: true,
+        context,
+        userId,
+        organizationId,
+        data: updatedInfo,
+      })
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('User stats not found')) {
+        logger.info('Initializing user stats for new user', { userId })
+        await initializeUserUsageLimit(userId)
+
+        const updatedInfo = await getUserUsageLimitInfo(userId)
+        return NextResponse.json({
+          success: true,
+          context,
+          userId,
+          organizationId,
+          data: updatedInfo,
+        })
+      }
+
+      throw error
+    }
   } catch (error) {
     logger.error('Failed to update usage limit', {
       userId: session?.user?.id,

@@ -586,7 +586,6 @@ const WorkflowContent = React.memo(() => {
       )
     }
   }, [
-    project,
     blocks,
     addBlock,
     addEdge,
@@ -801,7 +800,6 @@ const WorkflowContent = React.memo(() => {
       }
     },
     [
-      project,
       blocks,
       addBlock,
       addEdge,
@@ -862,7 +860,7 @@ const WorkflowContent = React.memo(() => {
         logger.error('Error in onDragOver', { err })
       }
     },
-    [project, isPointInLoopNodeWrapper, getNodes]
+    [isPointInLoopNodeWrapper, getNodes]
   )
 
   // Initialize workflow when it exists in registry and isn't active
