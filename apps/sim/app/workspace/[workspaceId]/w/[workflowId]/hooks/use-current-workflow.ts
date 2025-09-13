@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { Edge } from '@xyflow/react'
+import type { Edge } from 'reactflow'
 import { useWorkflowDiffStore } from '@/stores/workflow-diff/store'
 import type { DeploymentStatus } from '@/stores/workflows/registry/types'
 import { useWorkflowStore } from '@/stores/workflows/workflow/store'

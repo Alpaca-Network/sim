@@ -1,4 +1,4 @@
-import { BaseEdge, type EdgeProps, getSmoothStepPath } from '@xyflow/react'
+import { BaseEdge, type EdgeProps, getSmoothStepPath } from 'reactflow'
 
 export const HeroEdge = ({
   id,

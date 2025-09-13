@@ -1,4 +1,4 @@
-import type { Edge } from '@xyflow/react'
+import type { Edge } from 'reactflow'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { createLogger } from '@/lib/logs/console/logger'

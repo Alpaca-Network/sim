@@ -1,7 +1,7 @@
 import type React from 'react'
 import { memo, useMemo, useRef } from 'react'
 import { Trash2 } from 'lucide-react'
-import { Handle, type NodeProps, Position, useReactFlow } from '@xyflow/react'
+import { Handle, type NodeProps, Position, useReactFlow } from 'reactflow'
 import { StartIcon } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'

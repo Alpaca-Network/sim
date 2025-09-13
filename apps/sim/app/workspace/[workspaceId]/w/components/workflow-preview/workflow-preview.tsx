@@ -2,8 +2,7 @@
 
 import { useMemo } from 'react'
 import { cloneDeep } from 'lodash'
-import {
-  ReactFlow,
+import ReactFlow, {
   Background,
   ConnectionLineType,
   type Edge,
@@ -11,8 +10,8 @@ import {
   type Node,
   type NodeTypes,
   ReactFlowProvider,
-} from '@xyflow/react'
-import '@xyflow/react/dist/style.css'
+} from 'reactflow'
+import 'reactflow/dist/style.css'
 
 import { createLogger } from '@/lib/logs/console/logger'
 import { cn } from '@/lib/utils'
