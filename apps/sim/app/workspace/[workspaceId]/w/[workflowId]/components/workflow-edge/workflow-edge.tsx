@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { X } from 'lucide-react'
-import { BaseEdge, EdgeLabelRenderer, type EdgeProps, getSmoothStepPath } from 'reactflow'
+import { BaseEdge, EdgeLabelRenderer, type EdgeProps, getSmoothStepPath } from '@xyflow/react'
 import type { EdgeDiffStatus } from '@/lib/workflows/diff/types'
 import { useWorkflowDiffStore } from '@/stores/workflow-diff'
 import { useCurrentWorkflow } from '../../hooks'

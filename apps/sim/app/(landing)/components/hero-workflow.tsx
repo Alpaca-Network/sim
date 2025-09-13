@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import ReactFlow, {
+import {
+  ReactFlow,
   ConnectionLineType,
   type Edge,
   type EdgeTypes,
@@ -14,8 +15,8 @@ import ReactFlow, {
   useNodesState,
   useReactFlow,
   type Viewport,
-} from 'reactflow'
-import 'reactflow/dist/style.css'
+} from '@xyflow/react'
+import '@xyflow/react/dist/style.css'
 
 import { HeroBlock } from '@/app/(landing)/components/hero-block'
 import { HeroEdge } from '@/app/(landing)/components/hero-edge'

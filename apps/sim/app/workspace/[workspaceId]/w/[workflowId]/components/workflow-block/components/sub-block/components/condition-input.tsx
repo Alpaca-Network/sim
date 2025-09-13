@@ -7,7 +7,7 @@ import 'prismjs/components/prism-javascript'
 import 'prismjs/themes/prism.css'
 
 import Editor from 'react-simple-code-editor'
-import { Handle, Position, useUpdateNodeInternals } from 'reactflow'
+import { Handle, Position, useUpdateNodeInternals } from '@xyflow/react'
 import { Button } from '@/components/ui/button'
 import { checkEnvVarTrigger, EnvVarDropdown } from '@/components/ui/env-var-dropdown'
 import { checkTagTrigger, TagDropdown } from '@/components/ui/tag-dropdown'

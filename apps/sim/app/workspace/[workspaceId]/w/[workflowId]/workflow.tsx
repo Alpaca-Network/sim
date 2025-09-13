@@ -2,7 +2,9 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import ReactFlow, {
+import dynamic from 'next/dynamic'
+import {
+  ReactFlow,
   Background,
   ConnectionLineType,
   type Edge,
@@ -10,8 +12,13 @@ import ReactFlow, {
   type NodeTypes,
   ReactFlowProvider,
   useReactFlow,
-} from 'reactflow'
-import 'reactflow/dist/style.css'
+} from '@xyflow/react'
+import '@xyflow/react/dist/style.css'
+
+const ReactFlowDynamic = dynamic(() => import('@xyflow/react').then(mod => ({ default: mod.ReactFlow })), {
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center h-full text-muted-foreground">Loading workflow editor...</div>
+})
 import { createLogger } from '@/lib/logs/console/logger'
 import { useUserPermissionsContext } from '@/app/workspace/[workspaceId]/providers/workspace-permissions-provider'
 import { ControlBar } from '@/app/workspace/[workspaceId]/w/[workflowId]/components/control-bar/control-bar'
@@ -1616,7 +1623,7 @@ const WorkflowContent = React.memo(() => {
         {/* Floating Control Bar */}
         <ControlBar hasValidationErrors={nestedSubflowErrors.size > 0} />
 
-        <ReactFlow
+        <ReactFlowDynamic
           nodes={nodes}
           edges={edgesWithSelection}
           onNodesChange={onNodesChange}
@@ -1668,7 +1675,7 @@ const WorkflowContent = React.memo(() => {
             gap={40}
             style={{ backgroundColor: 'hsl(var(--workflow-background))' }}
           />
-        </ReactFlow>
+        </ReactFlowDynamic>
 
         {/* Show DiffControls if diff is available (regardless of current view mode) */}
         <DiffControls />

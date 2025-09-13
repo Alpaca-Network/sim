@@ -9,7 +9,7 @@ import {
   // For Add Tool button
   PlusIcon,
 } from 'lucide-react'
-import { Handle, type NodeProps, Position } from 'reactflow'
+import { Handle, type NodeProps, Position } from '@xyflow/react'
 import { AgentIcon, ConnectIcon, SlackIcon, StartIcon } from '@/components/icons'
 import { CodeBlock } from '@/components/ui/code-block'
 import { cn } from '@/lib/utils'

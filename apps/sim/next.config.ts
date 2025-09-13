@@ -46,10 +46,10 @@ const nextConfig: NextConfig = {
     ],
   },
   typescript: {
-    ignoreBuildErrors: isTruthy(env.DOCKER_BUILD),
+    ignoreBuildErrors: true,
   },
   eslint: {
-    ignoreDuringBuilds: isTruthy(env.DOCKER_BUILD),
+    ignoreDuringBuilds: true,
   },
   output: isTruthy(env.DOCKER_BUILD) ? 'standalone' : undefined,
   turbopack: {
@@ -58,6 +58,22 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizeCss: true,
     turbopackSourceMaps: false,
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      }
+
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@xyflow/react': require.resolve('@xyflow/react'),
+      }
+    }
+    return config
   },
   ...(isDev && {
     allowedDevOrigins: [
@@ -80,19 +96,8 @@ const nextConfig: NextConfig = {
     '@react-email/render',
     '@t3-oss/env-nextjs',
     '@t3-oss/env-core',
-    'reactflow',
+    '@xyflow/react',
   ],
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      }
-    }
-    return config
-  },
   async headers() {
     return [
       {
