@@ -99,7 +99,7 @@ const InputOTPSlot = React.forwardRef<
       onKeyDown={handleKeyDown}
       disabled={disabled}
       className={cn(
-        'relative flex h-12 w-12 items-center justify-center border-input border-y border-r font-semibold text-lg text-center shadow-sm transition-all first:rounded-l-md first:border-l last:rounded-r-md focus:z-10 focus:ring-2 focus:ring-primary focus:ring-offset-1',
+        'relative flex h-12 w-12 items-center justify-center border-input border-y border-r text-center font-semibold text-lg shadow-sm transition-all first:rounded-l-md first:border-l last:rounded-r-md focus:z-10 focus:ring-2 focus:ring-primary focus:ring-offset-1',
         className
       )}
       {...props}

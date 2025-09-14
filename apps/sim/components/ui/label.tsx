@@ -12,6 +12,7 @@ const Label = React.forwardRef<
   HTMLLabelElement,
   React.LabelHTMLAttributes<HTMLLabelElement> & VariantProps<typeof labelVariants>
 >(({ className, ...props }, ref) => (
+  // biome-ignore lint/a11y/noLabelWithoutControl: This is a generic reusable label component
   <label ref={ref} className={cn(labelVariants(), className)} {...props} />
 ))
 Label.displayName = 'Label'

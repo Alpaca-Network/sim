@@ -1,21 +1,21 @@
 'use client'
 
 import { useEffect, useMemo } from 'react'
-import { motion } from 'framer-motion'
 import {
-  ReactFlow,
   ConnectionLineType,
   type Edge,
   type EdgeTypes,
   type Node,
   type NodeTypes,
   Position,
+  ReactFlow,
   ReactFlowProvider,
   useEdgesState,
   useNodesState,
   useReactFlow,
   type Viewport,
 } from '@xyflow/react'
+import { motion } from 'framer-motion'
 import '@xyflow/react/dist/style.css'
 
 import { HeroBlock } from '@/app/(landing)/components/hero-block'
