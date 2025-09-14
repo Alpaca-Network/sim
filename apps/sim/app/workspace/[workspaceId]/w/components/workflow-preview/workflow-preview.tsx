@@ -2,7 +2,8 @@
 
 import { useMemo } from 'react'
 import { cloneDeep } from 'lodash'
-import ReactFlow, {
+import {
+  ReactFlow,
   Background,
   ConnectionLineType,
   type Edge,
