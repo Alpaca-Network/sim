@@ -17,10 +17,6 @@ interface MarqueeProps extends ComponentPropsWithoutRef<'div'> {
    */
   pauseOnHover?: boolean
   /**
-   * Content to be displayed in the marquee
-   */
-  children: React.ReactNode
-  /**
    * Whether to animate vertically instead of horizontally
    * @default false
    */
