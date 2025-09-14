@@ -90,7 +90,7 @@ const nextConfig: NextConfig = {
         net: false,
         tls: false,
       }
-      
+
       config.resolve.alias = {
         ...config.resolve.alias,
         '@xyflow/react': require.resolve('@xyflow/react'),
