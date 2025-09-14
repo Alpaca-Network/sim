@@ -1,4 +1,4 @@
-import type { Edge } from 'reactflow'
+import type { Edge } from '@xyflow/react'
 import { createLogger } from '@/lib/logs/console/logger'
 import { getBlock } from '@/blocks'
 import type { SubBlockConfig } from '@/blocks/types'

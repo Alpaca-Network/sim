@@ -10,8 +10,8 @@ import ReactFlow, {
   type Node,
   type NodeTypes,
   ReactFlowProvider,
-} from 'reactflow'
-import 'reactflow/dist/style.css'
+} from '@xyflow/react'
+import '@xyflow/react/dist/style.css'
 
 import { createLogger } from '@/lib/logs/console/logger'
 import { cn } from '@/lib/utils'
