@@ -1,8 +1,8 @@
 'use client'
 
+import { ConnectionLineType, Position, ReactFlow, ReactFlowProvider } from '@xyflow/react'
 import { motion } from 'framer-motion'
 import { GitBranch, RefreshCcw } from 'lucide-react'
-import { ReactFlow, ConnectionLineType, Position, ReactFlowProvider } from '@xyflow/react'
 import { DotPattern } from '@/app/(landing)/components/dot-pattern'
 import { HeroBlock } from '@/app/(landing)/components/hero-block'
 import { OrbitingCircles } from '@/app/(landing)/components/magicui/orbiting-circles'

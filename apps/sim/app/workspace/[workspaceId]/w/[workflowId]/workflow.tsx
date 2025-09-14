@@ -6,13 +6,10 @@ import {
   ConnectionLineType,
   type Edge,
   type EdgeTypes,
-  type Node,
   type NodeTypes,
   ReactFlow,
   ReactFlowProvider,
   useReactFlow,
-  useNodesState,
-  useEdgesState,
 } from '@xyflow/react'
 import { useParams, useRouter } from 'next/navigation'
 import '@xyflow/react/dist/style.css'

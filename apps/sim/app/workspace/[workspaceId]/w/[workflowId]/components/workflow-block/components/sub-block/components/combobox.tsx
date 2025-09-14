@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useReactFlow } from '@xyflow/react'
 import { Check, ChevronDown } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { useReactFlow } from '@xyflow/react'
 import { Button } from '@/components/ui/button'
 import { checkEnvVarTrigger, EnvVarDropdown } from '@/components/ui/env-var-dropdown'
 import { formatDisplayText } from '@/components/ui/formatted-text'

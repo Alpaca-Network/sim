@@ -57,21 +57,23 @@ interface SheetContentProps
   onCloseAutoFocus?: (event: Event) => void
 }
 
-const SheetContent = React.forwardRef<
-  HTMLDivElement,
-  SheetContentProps
->(({ side = 'right', className, children, ...props }, ref) => (
-  <div className="fixed inset-0 z-50">
-    <div className="fixed inset-0 bg-white/50 dark:bg-black/50" style={{ backdropFilter: 'blur(4.8px)' }} />
-    <div ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
-      {children}
-      <button className='absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary'>
-        <X className='h-4 w-4' />
-        <span className='sr-only'>Close</span>
-      </button>
+const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
+  ({ side = 'right', className, children, ...props }, ref) => (
+    <div className='fixed inset-0 z-50'>
+      <div
+        className='fixed inset-0 bg-white/50 dark:bg-black/50'
+        style={{ backdropFilter: 'blur(4.8px)' }}
+      />
+      <div ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
+        {children}
+        <button className='absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary'>
+          <X className='h-4 w-4' />
+          <span className='sr-only'>Close</span>
+        </button>
+      </div>
     </div>
-  </div>
-))
+  )
+)
 SheetContent.displayName = SheetPrimitive.Content.displayName
 
 const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
@@ -87,27 +89,18 @@ const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
 )
 SheetFooter.displayName = 'SheetFooter'
 
-const SheetTitle = React.forwardRef<
-  HTMLHeadingElement,
-  React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => (
-  <h2
-    ref={ref}
-    className={cn('font-semibold text-foreground text-lg', className)}
-    {...props}
-  />
-))
+const SheetTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
+  ({ className, ...props }, ref) => (
+    <h2 ref={ref} className={cn('font-semibold text-foreground text-lg', className)} {...props} />
+  )
+)
 SheetTitle.displayName = 'SheetTitle'
 
 const SheetDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn('text-muted-foreground text-sm', className)}
-    {...props}
-  />
+  <p ref={ref} className={cn('text-muted-foreground text-sm', className)} {...props} />
 ))
 SheetDescription.displayName = 'SheetDescription'
 

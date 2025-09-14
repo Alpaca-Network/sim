@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { Handle, type NodeProps, Position, useUpdateNodeInternals } from '@xyflow/react'
 import { BookOpen, Code, Info, RectangleHorizontal, RectangleVertical, Zap } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { Handle, type NodeProps, Position, useUpdateNodeInternals } from '@xyflow/react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'

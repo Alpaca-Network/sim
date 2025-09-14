@@ -2,19 +2,19 @@
 
 import type React from 'react'
 import { useEffect, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { CodeXml, WorkflowIcon } from 'lucide-react'
 import {
-  ReactFlow,
   ConnectionLineType,
   type Edge,
   type Node,
   type NodeTypes,
   Position,
+  ReactFlow,
   ReactFlowProvider,
   useEdgesState,
   useNodesState,
 } from '@xyflow/react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { CodeXml, WorkflowIcon } from 'lucide-react'
 import '@xyflow/react/dist/style.css'
 
 import { AgentIcon, ConnectIcon, StartIcon } from '@/components/icons'
