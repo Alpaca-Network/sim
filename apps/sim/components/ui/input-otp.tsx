@@ -26,26 +26,24 @@ const InputOTPContext = React.createContext<{
   disabled: false,
 })
 
-const InputOTP = React.forwardRef<
-  HTMLDivElement,
-  InputOTPProps
->(({ className, containerClassName, maxLength, value, onChange, disabled, children, ...props }, ref) => {
-  return (
-    <InputOTPContext.Provider value={{ value, onChange, maxLength, disabled }}>
-      <div
-        ref={ref}
-        className={cn(
-          'flex items-center gap-2',
-          disabled && 'opacity-50',
-          containerClassName
-        )}
-        {...props}
-      >
-        {children}
-      </div>
-    </InputOTPContext.Provider>
-  )
-})
+const InputOTP = React.forwardRef<HTMLDivElement, InputOTPProps>(
+  (
+    { className, containerClassName, maxLength, value, onChange, disabled, children, ...props },
+    ref
+  ) => {
+    return (
+      <InputOTPContext.Provider value={{ value, onChange, maxLength, disabled }}>
+        <div
+          ref={ref}
+          className={cn('flex items-center gap-2', disabled && 'opacity-50', containerClassName)}
+          {...props}
+        >
+          {children}
+        </div>
+      </InputOTPContext.Provider>
+    )
+  }
+)
 InputOTP.displayName = 'InputOTP'
 
 const InputOTPGroup = React.forwardRef<
@@ -62,17 +60,19 @@ const InputOTPSlot = React.forwardRef<
 >(({ index, className, ...props }, ref) => {
   const { value, onChange, maxLength, disabled } = React.useContext(InputOTPContext)
   const char = value[index] || ''
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value
     if (newValue.length <= 1 && /^[0-9]*$/.test(newValue)) {
       const newOtp = value.split('')
       newOtp[index] = newValue
       onChange(newOtp.join(''))
-      
+
       if (newValue && index < maxLength - 1) {
         const target = e.target as HTMLInputElement
-        const nextInput = target.parentElement?.parentElement?.querySelector(`input:nth-child(${index + 2})`) as HTMLInputElement
+        const nextInput = target.parentElement?.parentElement?.querySelector(
+          `input:nth-child(${index + 2})`
+        ) as HTMLInputElement
         nextInput?.focus()
       }
     }
@@ -81,7 +81,9 @@ const InputOTPSlot = React.forwardRef<
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !char && index > 0) {
       const target = e.target as HTMLInputElement
-      const prevInput = target.parentElement?.parentElement?.querySelector(`input:nth-child(${index})`) as HTMLInputElement
+      const prevInput = target.parentElement?.parentElement?.querySelector(
+        `input:nth-child(${index})`
+      ) as HTMLInputElement
       prevInput?.focus()
     }
   }
@@ -89,8 +91,8 @@ const InputOTPSlot = React.forwardRef<
   return (
     <input
       ref={ref}
-      type="text"
-      inputMode="numeric"
+      type='text'
+      inputMode='numeric'
       maxLength={1}
       value={char}
       onChange={handleChange}
