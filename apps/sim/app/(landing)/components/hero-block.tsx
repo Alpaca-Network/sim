@@ -1,7 +1,8 @@
 // Assuming custom icons exist for Sim specific things, otherwise use Lucide
 
-import type React from 'react'
+import React from 'react'
 import { memo } from 'react'
+import dynamic from 'next/dynamic'
 import {
   // For header icon
   ChevronDown,
@@ -9,10 +10,31 @@ import {
   // For Add Tool button
   PlusIcon,
 } from 'lucide-react'
-import { Handle, type NodeProps, Position } from 'reactflow'
+import { type NodeProps, Position } from '@xyflow/react'
 import { AgentIcon, ConnectIcon, SlackIcon, StartIcon } from '@/components/icons'
 import { CodeBlock } from '@/components/ui/code-block'
 import { cn } from '@/lib/utils'
+
+const HandleWrapper = ({ type, position, id, className, style, ...props }: any) => {
+  const [HandleComponent, setHandleComponent] = React.useState<any>(null)
+  
+  React.useEffect(() => {
+    import('@xyflow/react').then(mod => {
+      setHandleComponent(() => mod.Handle)
+    })
+  }, [])
+  
+  if (!HandleComponent) return null
+  
+  return React.createElement(HandleComponent, {
+    type,
+    position,
+    id,
+    className,
+    style,
+    ...props
+  })
+}
 
 // Removed DotPattern import
 
@@ -45,7 +67,7 @@ const blockConfig = {
   },
 }
 
-export const HeroBlock = memo(({ id, data }: NodeProps) => {
+export const HeroBlock = memo(({ id, data, draggable, selectable, deletable, ...props }: NodeProps) => {
   const type = data.type as keyof typeof blockConfig
   const config = blockConfig[type] || blockConfig.function
   const Icon = config.icon
@@ -63,7 +85,7 @@ export const HeroBlock = memo(({ id, data }: NodeProps) => {
     <div className='group relative flex flex-col items-center opacity-90'>
       {/* Don't show input handle for starter blocks or function1 */}
       {showInputHandle && (
-        <Handle
+        <HandleWrapper
           type='target'
           position={Position.Left}
           id='target'
@@ -176,7 +198,7 @@ export const HeroBlock = memo(({ id, data }: NodeProps) => {
 
       {/* Output Handle - Don't show for slack1 */}
       {id !== 'slack1' && (
-        <Handle
+        <HandleWrapper
           type='source'
           position={Position.Right}
           id='source'

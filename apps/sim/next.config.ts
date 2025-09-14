@@ -80,7 +80,7 @@ const nextConfig: NextConfig = {
     '@react-email/render',
     '@t3-oss/env-nextjs',
     '@t3-oss/env-core',
-    'reactflow',
+    '@xyflow/react',
   ],
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -89,6 +89,11 @@ const nextConfig: NextConfig = {
         fs: false,
         net: false,
         tls: false,
+      }
+      
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@xyflow/react': require.resolve('@xyflow/react'),
       }
     }
     return config
