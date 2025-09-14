@@ -9,7 +9,7 @@ app:
   image:
     repository: gcr.io/buildz-471215/sim-app
     pullPolicy: IfNotPresent
-    tag: "1757802720"
+    tag: "1757816378"
   
   service:
     type: ClusterIP
