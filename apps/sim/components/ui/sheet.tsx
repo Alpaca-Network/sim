@@ -53,6 +53,8 @@ interface SheetContentProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof sheetVariants> {
   children?: React.ReactNode
+  onOpenAutoFocus?: (event: Event) => void
+  onCloseAutoFocus?: (event: Event) => void
 }
 
 const SheetContent = React.forwardRef<
