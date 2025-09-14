@@ -163,8 +163,8 @@ export function HeroWorkflow() {
   const isMobile = width < 768
   const isTablet = width >= 768 && width < 1024
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([])
-  const [edges, setEdges, onEdgesChange] = useEdgesState([])
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node[]>([])
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([])
   const { fitView } = useReactFlow()
 
   // Default viewport to make elements smaller
