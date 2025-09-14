@@ -13,41 +13,37 @@ const DialogPortal = DialogPrimitive.Portal
 
 const DialogClose = DialogPrimitive.Close
 
-const DialogOverlay = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, style, ...props }, ref) => {
-  const [isStable, setIsStable] = React.useState(false)
+const DialogOverlay = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, style, ...props }, ref) => {
+    const [isStable, setIsStable] = React.useState(false)
 
-  React.useEffect(() => {
-    // Add a small delay before allowing overlay interactions to prevent rapid state changes
-    const timer = setTimeout(() => setIsStable(true), 150)
-    return () => clearTimeout(timer)
-  }, [])
+    React.useEffect(() => {
+      // Add a small delay before allowing overlay interactions to prevent rapid state changes
+      const timer = setTimeout(() => setIsStable(true), 150)
+      return () => clearTimeout(timer)
+    }, [])
 
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'fixed inset-0 z-50 bg-white/50 dark:bg-black/50',
-        className
-      )}
-      style={{ backdropFilter: 'blur(1.5px)', ...style }}
-      onPointerDown={(e) => {
-        // Only allow overlay clicks after component is stable
-        if (!isStable) {
-          e.preventDefault()
-          return
-        }
-        // Ensure click is on the overlay itself, not a child
-        if (e.target !== e.currentTarget) {
-          e.preventDefault()
-        }
-      }}
-      {...props}
-    />
-  )
-})
+    return (
+      <div
+        ref={ref}
+        className={cn('fixed inset-0 z-50 bg-white/50 dark:bg-black/50', className)}
+        style={{ backdropFilter: 'blur(1.5px)', ...style }}
+        onPointerDown={(e) => {
+          // Only allow overlay clicks after component is stable
+          if (!isStable) {
+            e.preventDefault()
+            return
+          }
+          // Ensure click is on the overlay itself, not a child
+          if (e.target !== e.currentTarget) {
+            e.preventDefault()
+          }
+        }}
+        {...props}
+      />
+    )
+  }
+)
 DialogOverlay.displayName = 'DialogOverlay'
 
 const DialogContent = React.forwardRef<

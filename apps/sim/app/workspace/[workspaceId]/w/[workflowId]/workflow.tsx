@@ -1,17 +1,17 @@
 'use client'
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
 import {
-  ReactFlow,
   Background,
   ConnectionLineType,
   type Edge,
   type EdgeTypes,
   type NodeTypes,
+  ReactFlow,
   ReactFlowProvider,
   useReactFlow,
 } from '@xyflow/react'
+import { useParams, useRouter } from 'next/navigation'
 import '@xyflow/react/dist/style.css'
 import { createLogger } from '@/lib/logs/console/logger'
 import { useUserPermissionsContext } from '@/app/workspace/[workspaceId]/providers/workspace-permissions-provider'
