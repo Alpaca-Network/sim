@@ -6,10 +6,13 @@ import {
   ConnectionLineType,
   type Edge,
   type EdgeTypes,
+  type Node,
   type NodeTypes,
   ReactFlow,
   ReactFlowProvider,
   useReactFlow,
+  useNodesState,
+  useEdgesState,
 } from '@xyflow/react'
 import { useParams, useRouter } from 'next/navigation'
 import '@xyflow/react/dist/style.css'
@@ -1651,7 +1654,7 @@ const WorkflowContent = React.memo(() => {
           draggable={false}
           noWheelClassName='allow-scroll'
           edgesFocusable={true}
-          edgesUpdatable={effectivePermissions.canEdit}
+          edgeUpdaterRadius={effectivePermissions.canEdit ? 10 : 0}
           className='workflow-container h-full'
           onNodeDrag={effectivePermissions.canEdit ? onNodeDrag : undefined}
           onNodeDragStop={effectivePermissions.canEdit ? onNodeDragStop : undefined}
