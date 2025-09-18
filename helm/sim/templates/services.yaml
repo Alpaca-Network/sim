@@ -8,6 +8,13 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "sim.app.labels" . | nindent 4 }}
+  annotations:
+    {{- with .Values.app.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.app.backendConfig.enabled }}
+    cloud.google.com/backend-config: '{"default": "{{ .Values.app.backendConfig.name }}"}'
+    {{- end }}
 spec:
   type: {{ .Values.app.service.type }}
   ports:
@@ -29,6 +36,13 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "sim.realtime.labels" . | nindent 4 }}
+  annotations:
+    {{- with .Values.realtime.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.realtime.backendConfig.enabled }}
+    cloud.google.com/backend-config: '{"default": "{{ .Values.realtime.backendConfig.name }}"}'
+    {{- end }}
 spec:
   type: {{ .Values.realtime.service.type }}
   ports:
@@ -50,6 +64,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "sim.postgresql.labels" . | nindent 4 }}
+  annotations:
+    {{- with .Values.postgresql.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   type: {{ .Values.postgresql.service.type }}
   ports:
@@ -71,6 +89,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "sim.ollama.labels" . | nindent 4 }}
+  annotations:
+    {{- with .Values.ollama.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   type: {{ .Values.ollama.service.type }}
   ports:

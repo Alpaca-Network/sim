@@ -6,10 +6,13 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "sim.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
+    {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- end }}
+    {{- if and .Values.ingress.backendConfig.enabled .Values.ingress.backendConfig.name }}
+    cloud.google.com/backend-config: '{"default": "{{ .Values.ingress.backendConfig.name }}"}'
+    {{- end }}
 spec:
   {{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className }}

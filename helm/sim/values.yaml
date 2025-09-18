@@ -122,6 +122,25 @@ app:
     type: ClusterIP
     port: 3000
     targetPort: 3000
+
+  # Optional BackendConfig for GKE (health checks, timeouts, etc.)
+  backendConfig:
+    enabled: false
+    name: sim-app-backend-config
+    timeoutSec: 300
+    connectionDraining:
+      drainingTimeoutSec: 60
+    healthCheck:
+      checkIntervalSec: 10
+      timeoutSec: 5
+      healthyThreshold: 1
+      unhealthyThreshold: 3
+      requestPath: /api/health
+      # Defaults to app.service.targetPort when unset
+      # port: 3000
+    sessionAffinity:
+      affinityType: CLIENT_IP
+      affinityCookieTtlSec: 3600
   
   # Health checks
   livenessProbe:
@@ -199,6 +218,25 @@ realtime:
     type: ClusterIP
     port: 3002
     targetPort: 3002
+
+  # Optional BackendConfig for GKE (health checks, timeouts, etc.)
+  backendConfig:
+    enabled: false
+    name: sim-realtime-backend-config
+    timeoutSec: 300
+    connectionDraining:
+      drainingTimeoutSec: 60
+    healthCheck:
+      checkIntervalSec: 10
+      timeoutSec: 5
+      healthyThreshold: 1
+      unhealthyThreshold: 3
+      requestPath: /health
+      # Defaults to realtime.service.targetPort when unset
+      # port: 3002
+    sessionAffinity:
+      affinityType: CLIENT_IP
+      affinityCookieTtlSec: 3600
   
   # Health checks
   livenessProbe:
@@ -455,6 +493,23 @@ ingress:
   tls:
     enabled: false
     secretName: sim-tls-secret
+
+  # (Deprecated) Ingress-wide BackendConfig - prefer per-service backend configs above
+  backendConfig:
+    enabled: false
+    name: sim-backend-config
+    timeoutSec: 300
+    connectionDraining:
+      drainingTimeoutSec: 60
+    healthCheck:
+      checkIntervalSec: 10
+      timeoutSec: 5
+      healthyThreshold: 1
+      unhealthyThreshold: 3
+      requestPath: /api/health
+    sessionAffinity:
+      affinityType: CLIENT_IP
+      affinityCookieTtlSec: 3600
 
 # Service Account configuration
 serviceAccount:
