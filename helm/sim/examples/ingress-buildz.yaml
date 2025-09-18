@@ -7,7 +7,6 @@ metadata:
     kubernetes.io/ingress.global-static-ip-name: "simstudio-ip"
     networking.gke.io/managed-certificates: "buildz-ssl-cert"
     kubernetes.io/ingress.class: "gce"
-    cloud.google.com/backend-config: '{"default": "sim-backend-config"}'
 spec:
   rules:
   - host: buildz.ai

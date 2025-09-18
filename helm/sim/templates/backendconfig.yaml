@@ -1,0 +1,63 @@
+{{- if and .Values.app.backendConfig.enabled .Values.app.backendConfig.name }}
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: {{ .Values.app.backendConfig.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  {{- with .Values.app.backendConfig.timeoutSec }}
+  timeoutSec: {{ . }}
+  {{- end }}
+  {{- with .Values.app.backendConfig.connectionDraining }}
+  connectionDraining:
+    drainingTimeoutSec: {{ .drainingTimeoutSec | default 60 }}
+  {{- end }}
+  healthCheck:
+    checkIntervalSec: {{ .Values.app.backendConfig.healthCheck.checkIntervalSec | default 10 }}
+    timeoutSec: {{ .Values.app.backendConfig.healthCheck.timeoutSec | default 5 }}
+    healthyThreshold: {{ .Values.app.backendConfig.healthCheck.healthyThreshold | default 1 }}
+    unhealthyThreshold: {{ .Values.app.backendConfig.healthCheck.unhealthyThreshold | default 3 }}
+    type: HTTP
+    requestPath: {{ .Values.app.backendConfig.healthCheck.requestPath | default "/api/health" | quote }}
+    port: {{ .Values.app.backendConfig.healthCheck.port | default .Values.app.service.targetPort }}
+  {{- with .Values.app.backendConfig.sessionAffinity }}
+  sessionAffinity:
+    affinityType: {{ .affinityType | default "CLIENT_IP" | quote }}
+    {{- with .affinityCookieTtlSec }}
+    affinityCookieTtlSec: {{ . }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- if and .Values.realtime.backendConfig.enabled .Values.realtime.backendConfig.name }}
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: {{ .Values.realtime.backendConfig.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  {{- with .Values.realtime.backendConfig.timeoutSec }}
+  timeoutSec: {{ . }}
+  {{- end }}
+  {{- with .Values.realtime.backendConfig.connectionDraining }}
+  connectionDraining:
+    drainingTimeoutSec: {{ .drainingTimeoutSec | default 60 }}
+  {{- end }}
+  healthCheck:
+    checkIntervalSec: {{ .Values.realtime.backendConfig.healthCheck.checkIntervalSec | default 10 }}
+    timeoutSec: {{ .Values.realtime.backendConfig.healthCheck.timeoutSec | default 5 }}
+    healthyThreshold: {{ .Values.realtime.backendConfig.healthCheck.healthyThreshold | default 1 }}
+    unhealthyThreshold: {{ .Values.realtime.backendConfig.healthCheck.unhealthyThreshold | default 3 }}
+    type: HTTP
+    requestPath: {{ .Values.realtime.backendConfig.healthCheck.requestPath | default "/health" | quote }}
+    port: {{ .Values.realtime.backendConfig.healthCheck.port | default .Values.realtime.service.targetPort }}
+  {{- with .Values.realtime.backendConfig.sessionAffinity }}
+  sessionAffinity:
+    affinityType: {{ .affinityType | default "CLIENT_IP" | quote }}
+    {{- with .affinityCookieTtlSec }}
+    affinityCookieTtlSec: {{ . }}
+    {{- end }}
+  {{- end }}
+{{- end }}

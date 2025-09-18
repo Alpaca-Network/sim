@@ -198,6 +198,33 @@ ingress:
     enabled: true
     secretName: simstudio-tls-secret
 
+# Move NEG and BackendConfig annotations to Services
+app:
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+    annotations:
+      cloud.google.com/neg: '{"ingress": true}'
+  backendConfig:
+    enabled: true
+    name: sim-app-backend-config
+    healthCheck:
+      requestPath: /api/health
+
+realtime:
+  service:
+    type: ClusterIP
+    port: 3002
+    targetPort: 3002
+    annotations:
+      cloud.google.com/neg: '{"ingress": true}'
+  backendConfig:
+    enabled: true
+    name: sim-realtime-backend-config
+    healthCheck:
+      requestPath: /health
+
 # Pod disruption budget for high availability
 podDisruptionBudget:
   enabled: true

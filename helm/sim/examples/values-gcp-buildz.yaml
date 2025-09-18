@@ -291,8 +291,6 @@ ingress:
     kubernetes.io/ingress.global-static-ip-name: "simstudio-ip"
     networking.gke.io/managed-certificates: "buildz-ssl-cert"
     kubernetes.io/ingress.class: "gce"
-    cloud.google.com/neg: '{"ingress": true}'
-    cloud.google.com/backend-config: '{"default": "sim-backend-config"}'
   
   app:
     enabled: true
@@ -308,24 +306,39 @@ ingress:
     - path: /
       pathType: Prefix
 
-service:
-  app:
-    type: NodePort
-    port: 80
+app:
+  service:
+    type: ClusterIP
+    port: 3000
     targetPort: 3000
-    nodePort: 30080
-  
-  realtime:
-    type: NodePort
-    port: 80
+    annotations:
+      cloud.google.com/neg: '{"ingress": true}'
+  backendConfig:
+    enabled: true
+    name: sim-app-backend-config
+    healthCheck:
+      requestPath: /api/health
+
+realtime:
+  service:
+    type: ClusterIP
+    port: 3002
     targetPort: 3002
-    nodePort: 30082
-  
-  postgresql:
+    annotations:
+      cloud.google.com/neg: '{"ingress": true}'
+  backendConfig:
+    enabled: true
+    name: sim-realtime-backend-config
+    healthCheck:
+      requestPath: /health
+
+postgresql:
+  service:
     type: ClusterIP
     port: 5432
-  
-  ollama:
+
+ollama:
+  service:
     type: ClusterIP
     port: 11434
 
