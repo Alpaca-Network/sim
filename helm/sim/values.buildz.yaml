@@ -1,0 +1,150 @@
+# GCP values for buildz.ai deployment
+
+global:
+  imageRegistry: "ghcr.io"
+  storageClass: "standard-rwo"
+
+app:
+  enabled: true
+  replicaCount: 2
+
+  nodeSelector:
+    kubernetes.io/arch: amd64
+
+  resources:
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+    requests:
+      memory: "2Gi"
+      cpu: "1000m"
+
+  env:
+    NEXT_PUBLIC_APP_URL: "https://buildz.ai"
+    BETTER_AUTH_URL: "https://buildz.ai"
+    SOCKET_SERVER_URL: "https://ws.buildz.ai"
+    NEXT_PUBLIC_SOCKET_URL: "https://ws.buildz.ai"
+
+    # TODO: Replace with secure secrets before production
+    BETTER_AUTH_SECRET: "change-me"
+    ENCRYPTION_KEY: "change-me"
+
+    NODE_ENV: "production"
+    NEXT_TELEMETRY_DISABLED: "1"
+
+    GOOGLE_CLOUD_PROJECT: "buildz-ai"
+    GOOGLE_CLOUD_REGION: "us-central1"
+
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+    annotations:
+      cloud.google.com/neg: '{"ingress": true}'
+
+  backendConfig:
+    enabled: true
+    name: sim-app-backend-config
+    healthCheck:
+      requestPath: /api/health
+
+realtime:
+  enabled: true
+  replicaCount: 2
+
+  nodeSelector:
+    kubernetes.io/arch: amd64
+
+  resources:
+    limits:
+      memory: "4Gi"
+      cpu: "1000m"
+    requests:
+      memory: "2Gi"
+      cpu: "500m"
+
+  env:
+    NEXT_PUBLIC_APP_URL: "https://buildz.ai"
+    BETTER_AUTH_URL: "https://buildz.ai"
+    NEXT_PUBLIC_SOCKET_URL: "https://ws.buildz.ai"
+    BETTER_AUTH_SECRET: "change-me"
+    ALLOWED_ORIGINS: "https://buildz.ai"
+    NODE_ENV: "production"
+
+  service:
+    type: ClusterIP
+    port: 3002
+    targetPort: 3002
+    annotations:
+      cloud.google.com/neg: '{"ingress": true}'
+
+  backendConfig:
+    enabled: true
+    name: sim-realtime-backend-config
+    healthCheck:
+      requestPath: /health
+
+migrations:
+  enabled: true
+  resources:
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+
+postgresql:
+  enabled: true
+  auth:
+    username: postgres
+    password: "change-me"
+    database: simstudio
+  resources:
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+    requests:
+      memory: "2Gi"
+      cpu: "1000m"
+  persistence:
+    enabled: true
+    storageClass: "standard-rwo"
+    size: 50Gi
+    accessModes:
+      - ReadWriteOnce
+  tls:
+    enabled: false
+
+ollama:
+  enabled: false
+
+ingress:
+  enabled: true
+  className: gce
+  annotations:
+    kubernetes.io/ingress.class: gce
+    kubernetes.io/ingress.global-static-ip-name: "simstudio-ip"
+    networking.gke.io/managed-certificates: "simstudio-ssl-cert"
+    kubernetes.io/ingress.allow-http: "false"
+  app:
+    host: buildz.ai
+    paths:
+      - path: /
+        pathType: Prefix
+  realtime:
+    host: ws.buildz.ai
+    paths:
+      - path: /
+        pathType: Prefix
+  tls:
+    enabled: true
+    secretName: simstudio-tls-secret
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+networkPolicy:
+  enabled: true
+
