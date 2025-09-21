@@ -1,16 +1,17 @@
+import { db } from '@sim/db'
+import { permissions, workflow, workflowExecutionLogs } from '@sim/db/schema'
 import { and, eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console/logger'
-import { db } from '@/db'
-import { permissions, workflow, workflowExecutionLogs } from '@/db/schema'
+import { generateRequestId } from '@/lib/utils'
 
 const logger = createLogger('LogDetailsByIdAPI')
 
 export const revalidate = 0
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     const session = await getSession()

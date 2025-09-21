@@ -1,11 +1,11 @@
-import crypto from 'crypto'
+import { db } from '@sim/db'
+import { workflow, workflowBlocks, workspace } from '@sim/db/schema'
 import { eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSession } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console/logger'
-import { db } from '@/db'
-import { workflow, workflowBlocks, workspace } from '@/db/schema'
+import { generateRequestId } from '@/lib/utils'
 import { verifyWorkspaceMembership } from './utils'
 
 const logger = createLogger('WorkflowAPI')
@@ -20,7 +20,7 @@ const CreateWorkflowSchema = z.object({
 
 // GET /api/workflows - Get workflows for user (optionally filtered by workspaceId)
 export async function GET(request: Request) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
   const startTime = Date.now()
   const url = new URL(request.url)
   const workspaceId = url.searchParams.get('workspaceId')
@@ -82,7 +82,7 @@ export async function GET(request: Request) {
 
 // POST /api/workflows - Create a new workflow
 export async function POST(req: NextRequest) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
   const session = await getSession()
 
   if (!session?.user?.id) {

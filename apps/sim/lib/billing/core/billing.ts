@@ -1,3 +1,5 @@
+import { db } from '@sim/db'
+import { member, subscription, user } from '@sim/db/schema'
 import { and, eq } from 'drizzle-orm'
 import { getHighestPrioritySubscription } from '@/lib/billing/core/subscription'
 import { getUserUsageData } from '@/lib/billing/core/usage'
@@ -7,8 +9,6 @@ import {
   getTeamTierLimitPerSeat,
 } from '@/lib/billing/subscriptions/utils'
 import { createLogger } from '@/lib/logs/console/logger'
-import { db } from '@/db'
-import { member, subscription, user } from '@/db/schema'
 
 const logger = createLogger('Billing')
 
@@ -267,7 +267,7 @@ export async function getSimplifiedBillingSummary(
     }
 
     const overageAmount = Math.max(0, currentUsage - basePrice)
-    const percentUsed = usageData.limit > 0 ? Math.round((currentUsage / usageData.limit) * 100) : 0
+    const percentUsed = usageData.limit > 0 ? (currentUsage / usageData.limit) * 100 : 0
 
     // Calculate days remaining in billing period
     const daysRemaining = usageData.billingPeriodEnd

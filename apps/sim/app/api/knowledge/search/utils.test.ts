@@ -15,7 +15,7 @@ vi.mock('@/lib/logs/console/logger', () => ({
     error: vi.fn(),
   })),
 }))
-vi.mock('@/db')
+vi.mock('@sim/db')
 vi.mock('@/lib/knowledge/documents/utils', () => ({
   retryWithExponentialBackoff: (fn: any) => fn(),
 }))
@@ -420,6 +420,16 @@ describe('Knowledge Search Utils', () => {
 
       // Clean up
       Object.keys(env).forEach((key) => delete (env as any)[key])
+    })
+  })
+
+  describe('getDocumentNamesByIds', () => {
+    it('should handle empty input gracefully', async () => {
+      const { getDocumentNamesByIds } = await import('./utils')
+
+      const result = await getDocumentNamesByIds([])
+
+      expect(result).toEqual({})
     })
   })
 })

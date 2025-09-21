@@ -1,7 +1,8 @@
+import { db } from '@sim/db'
+import { workflow, workflowBlocks, workflowEdges, workflowSubflows } from '@sim/db/schema'
 import { eq } from 'drizzle-orm'
 import { createLogger } from '@/lib/logs/console/logger'
-import { db } from '@/db'
-import { workflow, workflowBlocks, workflowEdges, workflowSubflows } from '@/db/schema'
+import { sanitizeAgentToolsInBlocks } from '@/lib/workflows/validation'
 import type { WorkflowState } from '@/stores/workflows/workflow/types'
 import { SUBFLOW_TYPES } from '@/stores/workflows/workflow/types'
 
@@ -114,6 +115,14 @@ export async function loadWorkflowFromNormalizedTables(
       }
     })
 
+    // Sanitize any invalid custom tools in agent blocks to prevent client crashes
+    const { blocks: sanitizedBlocks, warnings } = sanitizeAgentToolsInBlocks(blocksMap)
+    if (warnings.length > 0) {
+      logger.warn(`Sanitized workflow ${workflowId} tools with ${warnings.length} warning(s)`, {
+        warnings,
+      })
+    }
+
     // Convert edges to the expected format
     const edgesArray = edges.map((edge) => ({
       id: edge.id,
@@ -146,7 +155,7 @@ export async function loadWorkflowFromNormalizedTables(
     })
 
     return {
-      blocks: blocksMap,
+      blocks: sanitizedBlocks,
       edges: edgesArray,
       loops,
       parallels,

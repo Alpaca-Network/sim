@@ -1,12 +1,12 @@
-import crypto from 'crypto'
+import { db } from '@sim/db'
+import { workflow, workflowBlocks, workflowEdges, workflowSubflows } from '@sim/db/schema'
 import { eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSession } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console/logger'
 import { getUserEntityPermissions } from '@/lib/permissions/utils'
-import { db } from '@/db'
-import { workflow, workflowBlocks, workflowEdges, workflowSubflows } from '@/db/schema'
+import { generateRequestId } from '@/lib/utils'
 import type { Variable } from '@/stores/panel/variables/types'
 import type { LoopConfig, ParallelConfig } from '@/stores/workflows/workflow/types'
 
@@ -23,7 +23,7 @@ const DuplicateRequestSchema = z.object({
 // POST /api/workflows/[id]/duplicate - Duplicate a workflow with all its blocks, edges, and subflows
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: sourceWorkflowId } = await params
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
   const startTime = Date.now()
 
   const session = await getSession()

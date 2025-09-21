@@ -1,3 +1,5 @@
+import { db } from '@sim/db'
+import { workflow as workflowTable } from '@sim/db/schema'
 import { eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
@@ -5,12 +7,11 @@ import { getSession } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console/logger'
 import { getUserEntityPermissions } from '@/lib/permissions/utils'
 import { simAgentClient } from '@/lib/sim-agent'
+import { generateRequestId } from '@/lib/utils'
 import { loadWorkflowFromNormalizedTables } from '@/lib/workflows/db-helpers'
 import { getAllBlocks } from '@/blocks/registry'
 import type { BlockConfig } from '@/blocks/types'
 import { resolveOutputType } from '@/blocks/utils'
-import { db } from '@/db'
-import { workflow as workflowTable } from '@/db/schema'
 import { generateLoopBlocks, generateParallelBlocks } from '@/stores/workflows/workflow/utils'
 
 export const dynamic = 'force-dynamic'
@@ -48,7 +49,7 @@ type AutoLayoutRequest = z.infer<typeof AutoLayoutRequestSchema>
  * Apply autolayout to an existing workflow
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
   const startTime = Date.now()
   const { id: workflowId } = await params
 

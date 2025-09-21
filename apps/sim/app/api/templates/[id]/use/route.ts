@@ -1,10 +1,11 @@
+import { db } from '@sim/db'
+import { templates, workflow, workflowBlocks, workflowEdges } from '@sim/db/schema'
 import { eq, sql } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
 import { getSession } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console/logger'
-import { db } from '@/db'
-import { templates, workflow, workflowBlocks, workflowEdges } from '@/db/schema'
+import { generateRequestId } from '@/lib/utils'
 
 const logger = createLogger('TemplateUseAPI')
 
@@ -13,7 +14,7 @@ export const revalidate = 0
 
 // POST /api/templates/[id]/use - Use a template (increment views and create workflow)
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
   const { id } = await params
 
   try {

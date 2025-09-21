@@ -1,15 +1,16 @@
+import { db } from '@sim/db'
+import { webhook } from '@sim/db/schema'
 import { eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { createLogger } from '@/lib/logs/console/logger'
-import { db } from '@/db'
-import { webhook } from '@/db/schema'
+import { generateRequestId } from '@/lib/utils'
 
 const logger = createLogger('WebhookTestAPI')
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     // Get the webhook ID and provider from the query parameters

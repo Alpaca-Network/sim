@@ -1,8 +1,9 @@
+import { db } from '@sim/db'
+import { memory } from '@sim/db/schema'
 import { and, eq, isNull, like } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { createLogger } from '@/lib/logs/console/logger'
-import { db } from '@/db'
-import { memory } from '@/db/schema'
+import { generateRequestId } from '@/lib/utils'
 
 const logger = createLogger('MemoryAPI')
 
@@ -18,7 +19,7 @@ export const runtime = 'nodejs'
  * - workflowId: Filter by workflow ID (required)
  */
 export async function GET(request: NextRequest) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     logger.info(`[${requestId}] Processing memory search request`)
@@ -101,7 +102,7 @@ export async function GET(request: NextRequest) {
  * - workflowId: ID of the workflow this memory belongs to
  */
 export async function POST(request: NextRequest) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     logger.info(`[${requestId}] Processing memory creation request`)

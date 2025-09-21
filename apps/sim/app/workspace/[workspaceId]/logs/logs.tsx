@@ -1,23 +1,24 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AlertCircle, Info, Loader2, Play, RefreshCw, Search, Square } from 'lucide-react'
+import { AlertCircle, Info, Loader2, Play, RefreshCw, Square } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { createLogger } from '@/lib/logs/console/logger'
+import { parseQuery, queryToApiParams } from '@/lib/logs/query-parser'
 import { cn } from '@/lib/utils'
+import { AutocompleteSearch } from '@/app/workspace/[workspaceId]/logs/components/search/search'
 import { Sidebar } from '@/app/workspace/[workspaceId]/logs/components/sidebar/sidebar'
 import { formatDate } from '@/app/workspace/[workspaceId]/logs/utils/format-date'
 import { useDebounce } from '@/hooks/use-debounce'
+import { useFolderStore } from '@/stores/folders/store'
 import { useFilterStore } from '@/stores/logs/filters/store'
 import type { LogsResponse, WorkflowLog } from '@/stores/logs/filters/types'
 
 const logger = createLogger('Logs')
 const LOGS_PER_PAGE = 50
 
-// Get color for different trigger types using app's color scheme
 const getTriggerColor = (trigger: string | null | undefined): string => {
   if (!trigger) return '#9ca3af'
 
@@ -77,7 +78,6 @@ export default function Logs() {
     triggers,
   } = useFilterStore()
 
-  // Set workspace ID in store when component mounts or workspaceId changes
   useEffect(() => {
     setWorkspaceId(workspaceId)
   }, [workspaceId])
@@ -94,21 +94,73 @@ export default function Logs() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const isInitialized = useRef<boolean>(false)
 
-  // Local search state with debouncing for the header
   const [searchQuery, setSearchQuery] = useState(storeSearchQuery)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
+
+  const [availableWorkflows, setAvailableWorkflows] = useState<string[]>([])
+  const [availableFolders, setAvailableFolders] = useState<string[]>([])
 
   // Live and refresh state
   const [isLive, setIsLive] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const liveIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const isSearchOpenRef = useRef<boolean>(false)
 
   // Sync local search query with store search query
   useEffect(() => {
     setSearchQuery(storeSearchQuery)
   }, [storeSearchQuery])
 
-  // Update store when debounced search query changes
+  const { fetchFolders, getFolderTree } = useFolderStore()
+
+  useEffect(() => {
+    let cancelled = false
+
+    const fetchSuggestions = async () => {
+      try {
+        const res = await fetch(`/api/workflows?workspaceId=${encodeURIComponent(workspaceId)}`)
+        if (res.ok) {
+          const body = await res.json()
+          const names: string[] = Array.isArray(body?.data)
+            ? body.data.map((w: any) => w?.name).filter(Boolean)
+            : []
+          if (!cancelled) setAvailableWorkflows(names)
+        } else {
+          if (!cancelled) setAvailableWorkflows([])
+        }
+
+        await fetchFolders(workspaceId)
+        const tree = getFolderTree(workspaceId)
+
+        const flatten = (nodes: any[], parentPath = ''): string[] => {
+          const out: string[] = []
+          for (const n of nodes) {
+            const path = parentPath ? `${parentPath} / ${n.name}` : n.name
+            out.push(path)
+            if (n.children?.length) out.push(...flatten(n.children, path))
+          }
+          return out
+        }
+
+        const folderPaths: string[] = Array.isArray(tree) ? flatten(tree) : []
+        if (!cancelled) setAvailableFolders(folderPaths)
+      } catch {
+        if (!cancelled) {
+          setAvailableWorkflows([])
+          setAvailableFolders([])
+        }
+      }
+    }
+
+    if (workspaceId) {
+      fetchSuggestions()
+    }
+
+    return () => {
+      cancelled = true
+    }
+  }, [workspaceId, fetchFolders, getFolderTree])
+
   useEffect(() => {
     if (isInitialized.current && debouncedSearchQuery !== storeSearchQuery) {
       setStoreSearchQuery(debouncedSearchQuery)
@@ -122,12 +174,10 @@ export default function Logs() {
     setIsSidebarOpen(true)
     setIsDetailsLoading(true)
 
-    // Fetch details for current, previous, and next concurrently with cache
     const currentId = log.id
     const prevId = index > 0 ? logs[index - 1]?.id : undefined
     const nextId = index < logs.length - 1 ? logs[index + 1]?.id : undefined
 
-    // Abort any previous details fetch batch
     if (detailsAbortRef.current) {
       try {
         detailsAbortRef.current.abort()
@@ -147,7 +197,6 @@ export default function Logs() {
     if (nextId && !detailsCacheRef.current.has(nextId))
       idsToFetch.push({ id: nextId, merge: false })
 
-    // Merge cached current immediately
     if (cachedCurrent) {
       setSelectedLog((prev) =>
         prev && prev.id === currentId
@@ -187,7 +236,6 @@ export default function Logs() {
       setSelectedLogIndex(nextIndex)
       const nextLog = logs[nextIndex]
       setSelectedLog(nextLog)
-      // Abort any previous details fetch batch
       if (detailsAbortRef.current) {
         try {
           detailsAbortRef.current.abort()
@@ -245,7 +293,6 @@ export default function Logs() {
       setSelectedLogIndex(prevIndex)
       const prevLog = logs[prevIndex]
       setSelectedLog(prevLog)
-      // Abort any previous details fetch batch
       if (detailsAbortRef.current) {
         try {
           detailsAbortRef.current.abort()
@@ -320,10 +367,27 @@ export default function Logs() {
         setIsFetchingMore(true)
       }
 
-      // Get fresh query params by calling buildQueryParams from store
       const { buildQueryParams: getCurrentQueryParams } = useFilterStore.getState()
       const queryParams = getCurrentQueryParams(pageNum, LOGS_PER_PAGE)
-      const response = await fetch(`/api/logs?${queryParams}&details=basic`)
+
+      const { searchQuery: currentSearchQuery } = useFilterStore.getState()
+      const parsedQuery = parseQuery(currentSearchQuery)
+      const enhancedParams = queryToApiParams(parsedQuery)
+
+      const allParams = new URLSearchParams(queryParams)
+      Object.entries(enhancedParams).forEach(([key, value]) => {
+        if (key === 'triggers' && allParams.has('triggers')) {
+          const existingTriggers = allParams.get('triggers')?.split(',') || []
+          const searchTriggers = value.split(',')
+          const combined = [...new Set([...existingTriggers, ...searchTriggers])]
+          allParams.set('triggers', combined.join(','))
+        } else {
+          allParams.set(key, value)
+        }
+      })
+
+      allParams.set('details', 'basic')
+      const response = await fetch(`/api/logs?${allParams.toString()}`)
 
       if (!response.ok) {
         throw new Error(`Error fetching logs: ${response.statusText}`)
@@ -389,7 +453,27 @@ export default function Logs() {
     setIsLive(!isLive)
   }
 
-  // Initialize filters from URL on mount
+  const handleExport = async () => {
+    const params = new URLSearchParams()
+    params.set('workspaceId', workspaceId)
+    if (level !== 'all') params.set('level', level)
+    if (triggers.length > 0) params.set('triggers', triggers.join(','))
+    if (workflowIds.length > 0) params.set('workflowIds', workflowIds.join(','))
+    if (folderIds.length > 0) params.set('folderIds', folderIds.join(','))
+
+    const parsed = parseQuery(debouncedSearchQuery)
+    const extra = queryToApiParams(parsed)
+    Object.entries(extra).forEach(([k, v]) => params.set(k, v))
+
+    const url = `/api/logs/export?${params.toString()}`
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'logs_export.csv'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  }
+
   useEffect(() => {
     if (!isInitialized.current) {
       isInitialized.current = true
@@ -397,7 +481,6 @@ export default function Logs() {
     }
   }, [initializeFromURL])
 
-  // Handle browser navigation events (back/forward)
   useEffect(() => {
     const handlePopState = () => {
       initializeFromURL()
@@ -407,37 +490,43 @@ export default function Logs() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [initializeFromURL])
 
-  // Single useEffect to handle both initial load and filter changes
   useEffect(() => {
-    // Only fetch logs after initialization
     if (!isInitialized.current) {
       return
     }
 
-    // Reset pagination and fetch from beginning
     setPage(1)
     setHasMore(true)
 
-    // Inline fetch logic to avoid circular dependency
     const fetchWithFilters = async () => {
       try {
         setLoading(true)
 
-        // Build query params inline to avoid dependency issues
         const params = new URLSearchParams()
         params.set('details', 'basic')
         params.set('limit', LOGS_PER_PAGE.toString())
         params.set('offset', '0') // Always start from page 1
         params.set('workspaceId', workspaceId)
 
-        // Add filters
+        const parsedQuery = parseQuery(debouncedSearchQuery)
+        const enhancedParams = queryToApiParams(parsedQuery)
+
         if (level !== 'all') params.set('level', level)
         if (triggers.length > 0) params.set('triggers', triggers.join(','))
         if (workflowIds.length > 0) params.set('workflowIds', workflowIds.join(','))
         if (folderIds.length > 0) params.set('folderIds', folderIds.join(','))
-        if (searchQuery.trim()) params.set('search', searchQuery.trim())
 
-        // Add time range filter
+        Object.entries(enhancedParams).forEach(([key, value]) => {
+          if (key === 'triggers' && params.has('triggers')) {
+            const storeTriggers = params.get('triggers')?.split(',') || []
+            const searchTriggers = value.split(',')
+            const combined = [...new Set([...storeTriggers, ...searchTriggers])]
+            params.set('triggers', combined.join(','))
+          } else {
+            params.set(key, value)
+          }
+        })
+
         if (timeRange !== 'All time') {
           const now = new Date()
           let startDate: Date
@@ -476,7 +565,7 @@ export default function Logs() {
     }
 
     fetchWithFilters()
-  }, [workspaceId, timeRange, level, workflowIds, folderIds, searchQuery, triggers])
+  }, [workspaceId, timeRange, level, workflowIds, folderIds, debouncedSearchQuery, triggers])
 
   const loadMoreLogs = useCallback(() => {
     if (!isFetchingMore && hasMore) {
@@ -542,6 +631,7 @@ export default function Logs() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (isSearchOpenRef.current) return
       if (logs.length === 0) return
 
       if (selectedLogIndex === -1 && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
@@ -588,18 +678,19 @@ export default function Logs() {
           </div>
 
           {/* Search and Controls */}
-          <div className='mb-8 flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center'>
-            <div className='flex h-9 w-full min-w-[200px] max-w-[460px] items-center gap-2 rounded-lg border bg-transparent pr-2 pl-3'>
-              <Search className='h-4 w-4 flex-shrink-0 text-muted-foreground' strokeWidth={2} />
-              <Input
-                placeholder='Search logs...'
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className='flex-1 border-0 bg-transparent px-0 font-[380] font-sans text-base text-foreground leading-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0'
-              />
-            </div>
+          <div className='mb-8 flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-start'>
+            <AutocompleteSearch
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder='Search logs...'
+              availableWorkflows={availableWorkflows}
+              availableFolders={availableFolders}
+              onOpenChange={(open) => {
+                isSearchOpenRef.current = open
+              }}
+            />
 
-            <div className='flex flex-shrink-0 items-center gap-3'>
+            <div className='ml-auto flex flex-shrink-0 items-center gap-3'>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -618,6 +709,34 @@ export default function Logs() {
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>{isRefreshing ? 'Refreshing...' : 'Refresh'}</TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    onClick={handleExport}
+                    className='h-9 rounded-[11px] hover:bg-secondary'
+                    aria-label='Export CSV'
+                  >
+                    {/* Download icon */}
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      viewBox='0 0 24 24'
+                      fill='none'
+                      stroke='currentColor'
+                      strokeWidth='2'
+                      className='h-5 w-5'
+                    >
+                      <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' />
+                      <polyline points='7 10 12 15 17 10' />
+                      <line x1='12' y1='15' x2='12' y2='3' />
+                    </svg>
+                    <span className='sr-only'>Export CSV</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Export CSV</TooltipContent>
               </Tooltip>
 
               <Button

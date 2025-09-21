@@ -1,3 +1,5 @@
+import { db } from '@sim/db'
+import { chat } from '@sim/db/schema'
 import { eq } from 'drizzle-orm'
 import type { NextRequest } from 'next/server'
 import { z } from 'zod'
@@ -5,10 +7,9 @@ import { renderOTPEmail } from '@/components/emails/render-email'
 import { sendEmail } from '@/lib/email/mailer'
 import { createLogger } from '@/lib/logs/console/logger'
 import { getRedisClient, markMessageAsProcessed, releaseLock } from '@/lib/redis'
+import { generateRequestId } from '@/lib/utils'
 import { addCorsHeaders, setChatAuthCookie } from '@/app/api/chat/utils'
 import { createErrorResponse, createSuccessResponse } from '@/app/api/workflows/utils'
-import { db } from '@/db'
-import { chat } from '@/db/schema'
 
 const logger = createLogger('ChatOtpAPI')
 
@@ -115,7 +116,7 @@ export async function POST(
   { params }: { params: Promise<{ subdomain: string }> }
 ) {
   const { subdomain } = await params
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     logger.debug(`[${requestId}] Processing OTP request for subdomain: ${subdomain}`)
@@ -229,7 +230,7 @@ export async function PUT(
   { params }: { params: Promise<{ subdomain: string }> }
 ) {
   const { subdomain } = await params
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     logger.debug(`[${requestId}] Verifying OTP for subdomain: ${subdomain}`)

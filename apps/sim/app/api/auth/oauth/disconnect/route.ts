@@ -1,9 +1,10 @@
+import { db } from '@sim/db'
+import { account } from '@sim/db/schema'
 import { and, eq, like, or } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console/logger'
-import { db } from '@/db'
-import { account } from '@/db/schema'
+import { generateRequestId } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,7 +14,7 @@ const logger = createLogger('OAuthDisconnectAPI')
  * Disconnect an OAuth provider for the current user
  */
 export async function POST(request: NextRequest) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     // Get the session

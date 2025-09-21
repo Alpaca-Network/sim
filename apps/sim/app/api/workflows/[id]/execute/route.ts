@@ -1,3 +1,5 @@
+import { db } from '@sim/db'
+import { userStats } from '@sim/db/schema'
 import { tasks } from '@trigger.dev/sdk'
 import { eq, sql } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
@@ -10,7 +12,7 @@ import { getPersonalAndWorkspaceEnv } from '@/lib/environment/utils'
 import { createLogger } from '@/lib/logs/console/logger'
 import { LoggingSession } from '@/lib/logs/execution/logging-session'
 import { buildTraceSpans } from '@/lib/logs/execution/trace-spans/trace-spans'
-import { decryptSecret } from '@/lib/utils'
+import { decryptSecret, generateRequestId } from '@/lib/utils'
 import { loadDeployedWorkflowState } from '@/lib/workflows/db-helpers'
 import {
   createHttpResponseFromBlock,
@@ -19,8 +21,6 @@ import {
 } from '@/lib/workflows/utils'
 import { validateWorkflowAccess } from '@/app/api/workflows/middleware'
 import { createErrorResponse, createSuccessResponse } from '@/app/api/workflows/utils'
-import { db } from '@/db'
-import { userStats } from '@/db/schema'
 import { Executor } from '@/executor'
 import { Serializer } from '@/serializer'
 import { RateLimitError, RateLimiter, type TriggerType } from '@/services/queue'
@@ -342,7 +342,7 @@ async function executeWorkflow(
 }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
   const { id } = await params
 
   try {
@@ -440,7 +440,7 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
   const logger = createLogger('WorkflowExecuteAPI')
   logger.info(`[${requestId}] Raw request body: `)
 

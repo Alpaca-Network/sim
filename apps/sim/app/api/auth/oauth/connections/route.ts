@@ -1,10 +1,10 @@
+import { account, db, user } from '@sim/db'
 import { eq } from 'drizzle-orm'
 import { jwtDecode } from 'jwt-decode'
 import { type NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console/logger'
-import { db } from '@/db'
-import { account, user } from '@/db/schema'
+import { generateRequestId } from '@/lib/utils'
 
 const logger = createLogger('OAuthConnectionsAPI')
 
@@ -18,7 +18,7 @@ interface GoogleIdToken {
  * Get all OAuth connections for the current user
  */
 export async function GET(request: NextRequest) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     // Get the session

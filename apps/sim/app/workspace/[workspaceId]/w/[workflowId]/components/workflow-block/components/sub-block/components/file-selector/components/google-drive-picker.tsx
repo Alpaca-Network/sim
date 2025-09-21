@@ -100,7 +100,9 @@ export function GoogleDrivePicker({
       if (response.ok) {
         const data = await response.json()
         setCredentials(data.credentials)
-        // Do not auto-select. Respect persisted credential via prop when provided.
+        if (credentialId && !data.credentials.some((c: any) => c.id === credentialId)) {
+          setSelectedCredentialId('')
+        }
       }
     } catch (error) {
       logger.error('Error fetching credentials:', { error })
@@ -150,6 +152,14 @@ export function GoogleDrivePicker({
             setSelectedFileId('')
             onChange('')
             onFileInfoChange?.(null)
+          }
+
+          if (response.status === 401) {
+            logger.info('Credential unauthorized (401), clearing selection and prompting re-auth')
+            setSelectedFileId('')
+            onChange('')
+            onFileInfoChange?.(null)
+            setShowOAuthModal(true)
           }
         }
         return null
@@ -498,7 +508,7 @@ export function GoogleDrivePicker({
                     href={selectedFile.webViewLink}
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='flex items-center gap-1 text-primary text-xs hover:underline'
+                    className='flex items-center gap-1 text-muted-foreground text-xs hover:underline'
                     onClick={(e) => e.stopPropagation()}
                   >
                     <span>Open in Drive</span>
@@ -509,7 +519,7 @@ export function GoogleDrivePicker({
                     href={`https://drive.google.com/file/d/${selectedFile.id}/view`}
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='flex items-center gap-1 text-primary text-xs hover:underline'
+                    className='flex items-center gap-1 text-muted-foreground text-xs hover:underline'
                     onClick={(e) => e.stopPropagation()}
                   >
                     <span>Open in Drive</span>

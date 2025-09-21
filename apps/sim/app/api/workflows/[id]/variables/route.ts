@@ -1,11 +1,12 @@
+import { db } from '@sim/db'
+import { workflow } from '@sim/db/schema'
 import { eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSession } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console/logger'
 import { getUserEntityPermissions } from '@/lib/permissions/utils'
-import { db } from '@/db'
-import { workflow } from '@/db/schema'
+import { generateRequestId } from '@/lib/utils'
 import type { Variable } from '@/stores/panel/variables/types'
 
 const logger = createLogger('WorkflowVariablesAPI')
@@ -23,7 +24,7 @@ const VariablesSchema = z.object({
 })
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
   const workflowId = (await params).id
 
   try {
@@ -112,7 +113,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
   const workflowId = (await params).id
 
   try {

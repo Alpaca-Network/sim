@@ -78,7 +78,7 @@ describe('Workflow Execution API Route', () => {
       }),
     }))
 
-    vi.doMock('@/db/schema', () => ({
+    vi.doMock('@sim/db/schema', () => ({
       subscription: {
         plan: 'plan',
         referenceId: 'referenceId',
@@ -162,6 +162,7 @@ describe('Workflow Execution API Route', () => {
       }),
       isHosted: vi.fn().mockReturnValue(false),
       getRotatingApiKey: vi.fn().mockReturnValue('rotated-api-key'),
+      generateRequestId: vi.fn(() => 'test-request-id'),
     }))
 
     vi.doMock('@/lib/logs/execution/logging-session', () => ({
@@ -204,7 +205,7 @@ describe('Workflow Execution API Route', () => {
       }),
     }))
 
-    vi.doMock('@/db', () => {
+    vi.doMock('@sim/db', () => {
       const mockDb = {
         select: vi.fn().mockImplementation((columns) => ({
           from: vi.fn().mockImplementation((table) => ({

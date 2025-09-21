@@ -1,10 +1,11 @@
+import { db } from '@sim/db'
+import { workflow } from '@sim/db/schema'
 import { eq } from 'drizzle-orm'
 import type { NextRequest, NextResponse } from 'next/server'
 import { createLogger } from '@/lib/logs/console/logger'
+import { generateRequestId } from '@/lib/utils'
 import { validateWorkflowAccess } from '@/app/api/workflows/middleware'
 import { createErrorResponse, createSuccessResponse } from '@/app/api/workflows/utils'
-import { db } from '@/db'
-import { workflow } from '@/db/schema'
 
 const logger = createLogger('WorkflowDeployedStateAPI')
 
@@ -18,7 +19,7 @@ function addNoCacheHeaders(response: NextResponse): NextResponse {
 }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
   const { id } = await params
 
   try {

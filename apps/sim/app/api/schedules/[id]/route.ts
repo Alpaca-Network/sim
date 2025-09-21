@@ -1,11 +1,11 @@
-import crypto from 'crypto'
+import { db } from '@sim/db'
+import { workflow, workflowSchedule } from '@sim/db/schema'
 import { eq } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console/logger'
 import { getUserEntityPermissions } from '@/lib/permissions/utils'
-import { db } from '@/db'
-import { workflow, workflowSchedule } from '@/db/schema'
+import { generateRequestId } from '@/lib/utils'
 
 const logger = createLogger('ScheduleAPI')
 
@@ -18,7 +18,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     const { id } = await params
@@ -85,7 +85,7 @@ export async function DELETE(
  * Update a schedule - can be used to reactivate a disabled schedule
  */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     const { id } = await params

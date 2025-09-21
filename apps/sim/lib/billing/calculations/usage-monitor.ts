@@ -1,10 +1,10 @@
+import { db } from '@sim/db'
+import { member, organization, userStats } from '@sim/db/schema'
 import { eq, inArray } from 'drizzle-orm'
 import { getOrganizationSubscription, getPlanPricing } from '@/lib/billing/core/billing'
 import { getUserUsageLimit } from '@/lib/billing/core/usage'
 import { isBillingEnabled } from '@/lib/environment'
 import { createLogger } from '@/lib/logs/console/logger'
-import { db } from '@/db'
-import { member, organization, userStats } from '@/db/schema'
 
 const logger = createLogger('UsageMonitor')
 
@@ -35,7 +35,7 @@ export async function checkUsageStatus(userId: string): Promise<UsageData> {
           : 0
 
       return {
-        percentUsed: Math.min(Math.round((currentUsage / 1000) * 100), 100),
+        percentUsed: Math.min((currentUsage / 1000) * 100, 100),
         isWarning: false,
         isExceeded: false,
         currentUsage,
@@ -69,7 +69,7 @@ export async function checkUsageStatus(userId: string): Promise<UsageData> {
     )
 
     // Calculate percentage used
-    const percentUsed = Math.min(Math.floor((currentUsage / limit) * 100), 100)
+    const percentUsed = Math.min((currentUsage / limit) * 100, 100)
 
     // Check org-level cap for team/enterprise pooled usage
     let isExceeded = currentUsage >= limit

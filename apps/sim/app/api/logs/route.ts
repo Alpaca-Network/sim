@@ -1,45 +1,13 @@
+import { db } from '@sim/db'
+import { permissions, workflow, workflowExecutionLogs } from '@sim/db/schema'
 import { and, desc, eq, gte, inArray, lte, type SQL, sql } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { getSession } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console/logger'
-import { db } from '@/db'
-import { permissions, workflow, workflowExecutionLogs } from '@/db/schema'
+import { generateRequestId } from '@/lib/utils'
 
 const logger = createLogger('LogsAPI')
-
-// Helper function to extract block executions from trace spans
-function extractBlockExecutionsFromTraceSpans(traceSpans: any[]): any[] {
-  const blockExecutions: any[] = []
-
-  function processSpan(span: any) {
-    if (span.blockId) {
-      blockExecutions.push({
-        id: span.id,
-        blockId: span.blockId,
-        blockName: span.name || '',
-        blockType: span.type,
-        startedAt: span.startTime,
-        endedAt: span.endTime,
-        durationMs: span.duration || 0,
-        status: span.status || 'success',
-        errorMessage: span.output?.error || undefined,
-        inputData: span.input || {},
-        outputData: span.output || {},
-        cost: span.cost || undefined,
-        metadata: {},
-      })
-    }
-
-    // Process children recursively
-    if (span.children && Array.isArray(span.children)) {
-      span.children.forEach(processSpan)
-    }
-  }
-
-  traceSpans.forEach(processSpan)
-  return blockExecutions
-}
 
 export const revalidate = 0
 
@@ -54,11 +22,13 @@ const QueryParamsSchema = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   search: z.string().optional(),
+  workflowName: z.string().optional(),
+  folderName: z.string().optional(),
   workspaceId: z.string(),
 })
 
 export async function GET(request: NextRequest) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     const session = await getSession()
@@ -185,6 +155,18 @@ export async function GET(request: NextRequest) {
         const searchTerm = `%${params.search}%`
         // With message removed, restrict search to executionId only
         conditions = and(conditions, sql`${workflowExecutionLogs.executionId} ILIKE ${searchTerm}`)
+      }
+
+      // Filter by workflow name (from advanced search input)
+      if (params.workflowName) {
+        const nameTerm = `%${params.workflowName}%`
+        conditions = and(conditions, sql`${workflow.name} ILIKE ${nameTerm}`)
+      }
+
+      // Filter by folder name (best-effort text match when present on workflows)
+      if (params.folderName) {
+        const folderTerm = `%${params.folderName}%`
+        conditions = and(conditions, sql`${workflow.name} ILIKE ${folderTerm}`)
       }
 
       // Execute the query using the optimized join

@@ -1,8 +1,9 @@
+import { db } from '@sim/db'
+import { chat } from '@sim/db/schema'
 import { eq } from 'drizzle-orm'
 import { createLogger } from '@/lib/logs/console/logger'
+import { generateRequestId } from '@/lib/utils'
 import { createErrorResponse, createSuccessResponse } from '@/app/api/workflows/utils'
-import { db } from '@/db'
-import { chat } from '@/db/schema'
 
 const logger = createLogger('ChatStatusAPI')
 
@@ -11,7 +12,7 @@ const logger = createLogger('ChatStatusAPI')
  */
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     logger.debug(`[${requestId}] Checking chat deployment status for workflow: ${id}`)

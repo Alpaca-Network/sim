@@ -1,11 +1,12 @@
+import { db } from '@sim/db'
+import { templateStars, templates, workflow } from '@sim/db/schema'
 import { and, desc, eq, ilike, or, sql } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
 import { getSession } from '@/lib/auth'
 import { createLogger } from '@/lib/logs/console/logger'
-import { db } from '@/db'
-import { templateStars, templates, workflow } from '@/db/schema'
+import { generateRequestId } from '@/lib/utils'
 
 const logger = createLogger('TemplatesAPI')
 
@@ -82,7 +83,7 @@ const QueryParamsSchema = z.object({
 
 // GET /api/templates - Retrieve templates
 export async function GET(request: NextRequest) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     const session = await getSession()
@@ -185,7 +186,7 @@ export async function GET(request: NextRequest) {
 
 // POST /api/templates - Create a new template
 export async function POST(request: NextRequest) {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   try {
     const session = await getSession()

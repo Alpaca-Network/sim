@@ -1,3 +1,5 @@
+import { db } from '@sim/db'
+import { chat, userStats, workflow } from '@sim/db/schema'
 import { eq, sql } from 'drizzle-orm'
 import { type NextRequest, NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
@@ -10,10 +12,8 @@ import { buildTraceSpans } from '@/lib/logs/execution/trace-spans/trace-spans'
 import { hasAdminPermission } from '@/lib/permissions/utils'
 import { processStreamingBlockLogs } from '@/lib/tokenization'
 import { getEmailDomain } from '@/lib/urls/utils'
-import { decryptSecret } from '@/lib/utils'
+import { decryptSecret, generateRequestId } from '@/lib/utils'
 import { getBlock } from '@/blocks'
-import { db } from '@/db'
-import { chat, userStats, workflow } from '@/db/schema'
 import { Executor } from '@/executor'
 import type { BlockLog, ExecutionResult } from '@/executor/types'
 import { Serializer } from '@/serializer'
@@ -303,7 +303,7 @@ export async function executeWorkflowForChat(
   input: string,
   conversationId?: string
 ): Promise<any> {
-  const requestId = crypto.randomUUID().slice(0, 8)
+  const requestId = generateRequestId()
 
   logger.debug(
     `[${requestId}] Executing workflow for chat: ${chatId}${

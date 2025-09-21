@@ -55,6 +55,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     resolveExtensions: ['.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
   },
+  serverExternalPackages: ['pdf-parse'],
   experimental: {
     optimizeCss: true,
     turbopackSourceMaps: false,
@@ -80,6 +81,7 @@ const nextConfig: NextConfig = {
     '@react-email/render',
     '@t3-oss/env-nextjs',
     '@t3-oss/env-core',
+    '@sim/db',
   ],
   async headers() {
     return [
