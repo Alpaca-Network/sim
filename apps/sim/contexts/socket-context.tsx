@@ -164,7 +164,16 @@ export function SocketProvider({ children, user }: SocketProviderProps) {
         // Generate initial token for socket authentication
         const token = await generateSocketToken()
 
-        const socketUrl = getEnv('NEXT_PUBLIC_SOCKET_URL') || 'http://localhost:3002'
+        // Only attempt to connect if socket URL is explicitly configured in production.
+        // In environments without a socket server, skip initialization gracefully.
+        const configuredSocketUrl = getEnv('NEXT_PUBLIC_SOCKET_URL')
+        const socketUrl = configuredSocketUrl || 'http://localhost:3002'
+
+        if (!configuredSocketUrl && getEnv('NODE_ENV') === 'production') {
+          logger.warn('Socket server URL is not configured; skipping socket initialization')
+          setIsConnecting(false)
+          return
+        }
 
         logger.info('Attempting to connect to Socket.IO server', {
           url: socketUrl,
