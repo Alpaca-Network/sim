@@ -21,7 +21,7 @@
     "lint:helm": "helm lint ./helm/sim --strict --values ./helm/sim/test/values-lint.yaml",
     "lint:all": "bun run lint && bun run lint:helm",
     "check": "bunx biome check --files-ignore-unknown=true",
-    "prepare": "bun husky",
+    "prepare": "npx husky",
     "prebuild": "bun run lint:check",
     "type-check": "turbo run type-check"
   },
