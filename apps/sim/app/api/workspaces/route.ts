@@ -10,57 +10,68 @@ const logger = createLogger('Workspaces')
 
 // Get all workspaces for the current user
 export async function GET() {
-  const session = await getSession()
+  try {
+    const session = await getSession()
 
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Get all workspaces where the user has permissions
+    const userWorkspaces = await db
+      .select({
+        workspace: workspace,
+        permissionType: permissions.permissionType,
+      })
+      .from(permissions)
+      .innerJoin(workspace, eq(permissions.entityId, workspace.id))
+      .where(and(eq(permissions.userId, session.user.id), eq(permissions.entityType, 'workspace')))
+      .orderBy(desc(workspace.createdAt))
+
+    if (userWorkspaces.length === 0) {
+      // Create a default workspace for the user
+      const defaultWorkspace = await createDefaultWorkspace(session.user.id, session.user.name)
+
+      // Migrate existing workflows to the default workspace
+      await migrateExistingWorkflows(session.user.id, defaultWorkspace.id)
+
+      return NextResponse.json({ workspaces: [defaultWorkspace] })
+    }
+
+    // If user has workspaces but might have orphaned workflows, migrate them
+    await ensureWorkflowsHaveWorkspace(session.user.id, userWorkspaces[0].workspace.id)
+
+    // Format the response with permission information
+    const workspacesWithPermissions = userWorkspaces.map(
+      ({ workspace: workspaceDetails, permissionType }) => ({
+        ...workspaceDetails,
+        role: permissionType === 'admin' ? 'owner' : 'member', // Map admin to owner for compatibility
+        permissions: permissionType,
+      })
+    )
+
+    return NextResponse.json({ workspaces: workspacesWithPermissions })
+  } catch (error) {
+    logger.error('Error fetching workspaces:', error)
+    return NextResponse.json(
+      { 
+        error: 'Internal server error',
+        message: 'Failed to fetch workspaces. Please try again later.'
+      }, 
+      { status: 500 }
+    )
   }
-
-  // Get all workspaces where the user has permissions
-  const userWorkspaces = await db
-    .select({
-      workspace: workspace,
-      permissionType: permissions.permissionType,
-    })
-    .from(permissions)
-    .innerJoin(workspace, eq(permissions.entityId, workspace.id))
-    .where(and(eq(permissions.userId, session.user.id), eq(permissions.entityType, 'workspace')))
-    .orderBy(desc(workspace.createdAt))
-
-  if (userWorkspaces.length === 0) {
-    // Create a default workspace for the user
-    const defaultWorkspace = await createDefaultWorkspace(session.user.id, session.user.name)
-
-    // Migrate existing workflows to the default workspace
-    await migrateExistingWorkflows(session.user.id, defaultWorkspace.id)
-
-    return NextResponse.json({ workspaces: [defaultWorkspace] })
-  }
-
-  // If user has workspaces but might have orphaned workflows, migrate them
-  await ensureWorkflowsHaveWorkspace(session.user.id, userWorkspaces[0].workspace.id)
-
-  // Format the response with permission information
-  const workspacesWithPermissions = userWorkspaces.map(
-    ({ workspace: workspaceDetails, permissionType }) => ({
-      ...workspaceDetails,
-      role: permissionType === 'admin' ? 'owner' : 'member', // Map admin to owner for compatibility
-      permissions: permissionType,
-    })
-  )
-
-  return NextResponse.json({ workspaces: workspacesWithPermissions })
 }
 
 // POST /api/workspaces - Create a new workspace
 export async function POST(req: Request) {
-  const session = await getSession()
-
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   try {
+    const session = await getSession()
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { name } = await req.json()
 
     if (!name) {
@@ -71,8 +82,14 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ workspace: newWorkspace })
   } catch (error) {
-    console.error('Error creating workspace:', error)
-    return NextResponse.json({ error: 'Failed to create workspace' }, { status: 500 })
+    logger.error('Error creating workspace:', error)
+    return NextResponse.json(
+      { 
+        error: 'Internal server error',
+        message: 'Failed to create workspace. Please try again later.'
+      }, 
+      { status: 500 }
+    )
   }
 }
 
