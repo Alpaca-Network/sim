@@ -29,7 +29,8 @@ const BROWSER_EXTENSION_ATTRIBUTES = [
 if (typeof window !== 'undefined') {
   const originalError = console.error
   console.error = (...args) => {
-    if (args[0].includes('Hydration')) {
+    const firstArg = args[0]
+    if (typeof firstArg === 'string' && firstArg.includes('Hydration')) {
       const isExtensionError = BROWSER_EXTENSION_ATTRIBUTES.some((attr) =>
         args.some((arg) => typeof arg === 'string' && arg.includes(attr))
       )
