@@ -13,19 +13,16 @@ import { isProd } from '@/lib/environment'
 import { SessionContext, type SessionHookResult } from '@/lib/session/session-context'
 
 export function getBaseURL() {
-  let baseURL
+  // Prefer explicit Better Auth URL, else public app URL, else window origin, else localhost
+  const betterAuthUrl = env.BETTER_AUTH_URL || getEnv('BETTER_AUTH_URL')
+  if (betterAuthUrl) return betterAuthUrl
 
-  if (env.VERCEL_ENV === 'preview') {
-    baseURL = `https://${getEnv('NEXT_PUBLIC_VERCEL_URL')}`
-  } else if (env.VERCEL_ENV === 'development') {
-    baseURL = `https://${getEnv('NEXT_PUBLIC_VERCEL_URL')}`
-  } else if (env.VERCEL_ENV === 'production') {
-    baseURL = env.BETTER_AUTH_URL || getEnv('NEXT_PUBLIC_APP_URL')
-  } else if (env.NODE_ENV === 'development') {
-    baseURL = getEnv('NEXT_PUBLIC_APP_URL') || env.BETTER_AUTH_URL || 'http://localhost:3000'
-  }
+  const publicUrl = getEnv('NEXT_PUBLIC_APP_URL')
+  if (publicUrl) return publicUrl
 
-  return baseURL
+  if (typeof window !== 'undefined') return window.location.origin
+
+  return 'http://localhost:3000'
 }
 
 export const client = createAuthClient({

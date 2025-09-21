@@ -164,7 +164,18 @@ export function SocketProvider({ children, user }: SocketProviderProps) {
         // Generate initial token for socket authentication
         const token = await generateSocketToken()
 
-        const socketUrl = getEnv('NEXT_PUBLIC_SOCKET_URL') || 'http://localhost:3002'
+        // Derive socket URL: prefer env, else ws.<host> with same protocol, fallback localhost
+        let socketUrl = getEnv('NEXT_PUBLIC_SOCKET_URL') || ''
+        if (!socketUrl && typeof window !== 'undefined') {
+          const { protocol, host } = window.location
+          const wsHost = host.replace(/^www\./, '')
+          const proto = protocol === 'https:' ? 'https' : 'http'
+          const sub = wsHost.startsWith('ws.') ? wsHost : `ws.${wsHost}`
+          socketUrl = `${proto}://${sub}`
+        }
+        if (!socketUrl) {
+          socketUrl = 'http://localhost:3002'
+        }
 
         logger.info('Attempting to connect to Socket.IO server', {
           url: socketUrl,
