@@ -132,17 +132,28 @@ export function SocketProvider({ children, user }: SocketProviderProps) {
 
   // Helper function to generate a fresh socket token
   const generateSocketToken = async (): Promise<string> => {
-    // Avoid overlapping token requests
-    const res = await fetch('/api/auth/socket-token', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'cache-control': 'no-store' },
-    })
-    if (!res.ok) throw new Error('Failed to generate socket token')
-    const body = await res.json().catch(() => ({}))
-    const token = body?.token
-    if (!token || typeof token !== 'string') throw new Error('Invalid socket token')
-    return token
+    try {
+      // Avoid overlapping token requests
+      const res = await fetch('/api/auth/socket-token', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'cache-control': 'no-store' },
+      })
+      if (!res.ok) {
+        logger.warn('Failed to generate socket token, status:', res.status)
+        return '' // Return empty string to allow connection attempt without token
+      }
+      const body = await res.json().catch(() => ({}))
+      const token = body?.token
+      if (!token || typeof token !== 'string') {
+        logger.warn('Invalid socket token received')
+        return '' // Return empty string to allow connection attempt without token
+      }
+      return token
+    } catch (error) {
+      logger.warn('Error generating socket token:', error)
+      return '' // Return empty string to allow connection attempt without token
+    }
   }
 
   // Initialize socket when user is available - only once per session
@@ -164,10 +175,20 @@ export function SocketProvider({ children, user }: SocketProviderProps) {
         // Generate initial token for socket authentication
         const token = await generateSocketToken()
 
-        const socketUrl = getEnv('NEXT_PUBLIC_SOCKET_URL') || 'http://localhost:3002'
+        // Determine the socket URL - if not explicitly set, use relative path in production
+        let socketUrl = getEnv('NEXT_PUBLIC_SOCKET_URL')
+        
+        if (!socketUrl) {
+          // In production, use relative path to connect to the same domain
+          if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+            socketUrl = '' // Empty string means same origin
+          } else {
+            socketUrl = 'http://localhost:3002'
+          }
+        }
 
         logger.info('Attempting to connect to Socket.IO server', {
-          url: socketUrl,
+          url: socketUrl || 'same-origin',
           userId: user?.id || 'no-user',
           hasToken: !!token,
           timestamp: new Date().toISOString(),
@@ -227,13 +248,22 @@ export function SocketProvider({ children, user }: SocketProviderProps) {
 
         socketInstance.on('connect_error', (error: any) => {
           setIsConnecting(false)
-          logger.error('Socket connection error:', {
-            message: error.message,
-            stack: error.stack,
-            description: error.description,
-            type: error.type,
-            transport: error.transport,
-          })
+          
+          // Log connection errors but don't spam the console if socket server is not available
+          if (error.type === 'TransportError' || error.message?.includes('websocket error')) {
+            logger.debug('Socket connection error (server may not be available):', {
+              message: error.message,
+              type: error.type,
+            })
+          } else {
+            logger.error('Socket connection error:', {
+              message: error.message,
+              stack: error.stack,
+              description: error.description,
+              type: error.type,
+              transport: error.transport,
+            })
+          }
 
           // Authentication errors now indicate either session expiry or token generation issues
           if (
