@@ -134,11 +134,28 @@ export function buildCSPString(directives: CSPDirectives): string {
  * This maintains compatibility with existing inline scripts while fixing Docker env var issues
  */
 export function generateRuntimeCSP(): string {
-  const socketUrl = getEnv('NEXT_PUBLIC_SOCKET_URL') || 'http://localhost:3002'
-  const socketWsUrl =
-    socketUrl.replace('http://', 'ws://').replace('https://', 'wss://') || 'ws://localhost:3002'
   const appUrl = getEnv('NEXT_PUBLIC_APP_URL') || ''
   const ollamaUrl = getEnv('OLLAMA_URL') || 'http://localhost:11434'
+
+  // Derive socket URL dynamically when NEXT_PUBLIC_SOCKET_URL is missing
+  let socketUrl = getEnv('NEXT_PUBLIC_SOCKET_URL') || ''
+  if (!socketUrl && typeof window !== 'undefined') {
+    try {
+      const { protocol, host } = window.location
+      const wsHost = host.replace(/^www\./, '')
+      const proto = protocol === 'https:' ? 'https' : 'http'
+      socketUrl = `${proto}://ws.${wsHost}`
+    } catch {}
+  }
+  if (!socketUrl && appUrl) {
+    try {
+      const u = new URL(appUrl)
+      const wsHost = u.host.replace(/^www\./, '')
+      socketUrl = `${u.protocol}//ws.${wsHost}`
+    } catch {}
+  }
+  socketUrl = socketUrl || 'http://localhost:3002'
+  const socketWsUrl = socketUrl.replace('http://', 'ws://').replace('https://', 'wss://') || 'ws://localhost:3002'
 
   return `
     default-src 'self';

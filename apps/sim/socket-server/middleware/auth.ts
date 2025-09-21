@@ -1,6 +1,41 @@
 import type { Socket } from 'socket.io'
 import { auth } from '@/lib/auth'
+import { env } from '@/lib/env'
 import { createLogger } from '@/lib/logs/console/logger'
+
+function decodeBase64Url(input: string): Buffer {
+  input = input.replace(/-/g, '+').replace(/_/g, '/')
+  const pad = input.length % 4
+  if (pad) input += '='.repeat(4 - pad)
+  return Buffer.from(input, 'base64')
+}
+
+function verifyHs256Jwt(token: string, secret: string): any | null {
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    const [encodedHeader, encodedPayload, signature] = parts
+    const header = JSON.parse(decodeBase64Url(encodedHeader).toString('utf8'))
+    if (header.alg !== 'HS256') return null
+
+    const crypto = require('crypto') as typeof import('crypto')
+    const hmac = crypto.createHmac('sha256', secret)
+    hmac.update(`${encodedHeader}.${encodedPayload}`)
+    const expected = hmac
+      .digest('base64')
+      .replace(/=/g, '')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+    if (expected !== signature) return null
+
+    const payload = JSON.parse(decodeBase64Url(encodedPayload).toString('utf8'))
+    const now = Math.floor(Date.now() / 1000)
+    if (payload.exp && now >= payload.exp) return null
+    return payload
+  } catch {
+    return null
+  }
+}
 
 const logger = createLogger('SocketAuth')
 
@@ -57,6 +92,17 @@ export async function authenticateSocket(socket: AuthenticatedSocket, next: any)
 
       next()
     } catch (tokenError) {
+      // Fallback: accept locally issued HS256 JWT from /api/auth/socket-token
+      const payload = verifyHs256Jwt(token, env.BETTER_AUTH_SECRET || '')
+      if (payload?.sub) {
+        socket.userId = payload.sub
+        socket.userName = payload.name || payload.email || 'Unknown User'
+        socket.userEmail = payload.email
+        socket.activeOrganizationId = payload.org || undefined
+        logger.info(`Socket ${socket.id} authenticated via local JWT fallback`)
+        return next()
+      }
+
       const errorMessage = tokenError instanceof Error ? tokenError.message : String(tokenError)
       const errorStack = tokenError instanceof Error ? tokenError.stack : undefined
 
