@@ -1,4 +1,3 @@
-import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from 'next'
 import { env, isTruthy } from './lib/env'
 import { isDev, isHosted, isProd } from './lib/environment'
@@ -225,4 +224,16 @@ const sentryConfig = {
   },
 }
 
-export default isDev ? nextConfig : withSentryConfig(nextConfig, sentryConfig)
+// Conditionally apply Sentry config only in production
+let finalConfig = nextConfig
+
+if (!isDev) {
+  try {
+    const { withSentryConfig } = require('@sentry/nextjs')
+    finalConfig = withSentryConfig(nextConfig, sentryConfig)
+  } catch (error) {
+    console.warn('Failed to load Sentry config:', error)
+  }
+}
+
+export default finalConfig
