@@ -1,0 +1,24 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: sim-gcp-realtime-backendconfig
+  namespace: simstudio
+spec:
+  # Enable connection draining for graceful shutdowns
+  connectionDraining:
+    drainingTimeoutSec: 60
+  # Configure timeout for WebSocket connections
+  timeoutSec: 3600
+  # Enable session affinity for WebSocket connections
+  sessionAffinity:
+    affinityType: "CLIENT_IP"
+    affinityCookieTtlSec: 3600
+  # Health check configuration
+  healthCheck:
+    checkIntervalSec: 10
+    timeoutSec: 5
+    healthyThreshold: 1
+    unhealthyThreshold: 3
+    type: HTTP
+    requestPath: /health
+    port: 3002

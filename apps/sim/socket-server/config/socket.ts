@@ -15,6 +15,9 @@ function getAllowedOrigins(): string[] {
     env.NEXT_PUBLIC_VERCEL_URL,
     'http://localhost:3000',
     'http://localhost:3001',
+    // Explicitly add buildz.ai domains
+    'https://buildz.ai',
+    'https://www.buildz.ai',
     ...(env.ALLOWED_ORIGINS?.split(',') || []),
   ].filter((url): url is string => Boolean(url))
 

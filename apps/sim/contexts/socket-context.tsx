@@ -165,12 +165,24 @@ export function SocketProvider({ children, user }: SocketProviderProps) {
         const token = await generateSocketToken()
 
         const socketUrl = getEnv('NEXT_PUBLIC_SOCKET_URL') || 'http://localhost:3002'
+        
+        // Validate that we have a proper socket URL and it's not defaulting to the main domain
+        if (socketUrl.includes('buildz.ai') && !socketUrl.includes('ws.buildz.ai')) {
+          logger.error('Invalid socket URL detected - should use ws.buildz.ai subdomain', {
+            socketUrl,
+            envVar: getEnv('NEXT_PUBLIC_SOCKET_URL'),
+            processEnv: process.env.NEXT_PUBLIC_SOCKET_URL,
+          })
+          throw new Error('Socket server URL misconfiguration detected')
+        }
 
         logger.info('Attempting to connect to Socket.IO server', {
           url: socketUrl,
           userId: user?.id || 'no-user',
           hasToken: !!token,
           timestamp: new Date().toISOString(),
+          envVar: getEnv('NEXT_PUBLIC_SOCKET_URL'),
+          processEnv: process.env.NEXT_PUBLIC_SOCKET_URL,
         })
 
         const socketInstance = io(socketUrl, {
