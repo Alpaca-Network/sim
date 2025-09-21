@@ -7,6 +7,11 @@ metadata:
     kubernetes.io/ingress.global-static-ip-name: "simstudio-ip"
     networking.gke.io/managed-certificates: "buildz-ssl-cert"
     kubernetes.io/ingress.class: "gce"
+    # Enable WebSocket support for the realtime service
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    # Support WebSocket upgrades
+    cloud.google.com/backend-config: '{"ports": {"3002":"sim-gcp-realtime-backendconfig"}}'
 spec:
   rules:
   - host: buildz.ai
