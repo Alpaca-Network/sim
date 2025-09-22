@@ -53,10 +53,10 @@ export async function GET() {
   } catch (error) {
     logger.error('Error fetching workspaces:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
-        message: 'Failed to fetch workspaces. Please try again later.'
-      }, 
+        message: 'Failed to fetch workspaces. Please try again later.',
+      },
       { status: 500 }
     )
   }
@@ -83,10 +83,10 @@ export async function POST(req: Request) {
   } catch (error) {
     logger.error('Error creating workspace:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
-        message: 'Failed to create workspace. Please try again later.'
-      }, 
+        message: 'Failed to create workspace. Please try again later.',
+      },
       { status: 500 }
     )
   }

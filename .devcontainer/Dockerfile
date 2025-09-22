@@ -24,8 +24,13 @@ RUN echo "$USERNAME ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$USERNAME \
 # Install global packages for development
 RUN bun install -g turbo drizzle-kit typescript @types/node
 
-# Install bun completions
-RUN bun completions > /etc/bash_completion.d/bun
+# Ensure bash and bash-completion exist in this stage
+RUN apt-get update && apt-get install -y --no-install-recommends bash bash-completion && rm -rf /var/lib/apt/lists/*
+
+# Tell bun which shell to generate for, and do not fail the build if it flakes
+ENV SHELL=/bin/bash
+RUN bun completions bash > /etc/bash_completion.d/bun || true
+
 
 # Set up shell environment
 RUN echo "export PATH=$PATH:/home/$USERNAME/.bun/bin" >> /etc/profile

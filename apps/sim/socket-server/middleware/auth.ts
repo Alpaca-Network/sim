@@ -21,11 +21,7 @@ function verifyHs256Jwt(token: string, secret: string): any | null {
     const crypto = require('crypto') as typeof import('crypto')
     const hmac = crypto.createHmac('sha256', secret)
     hmac.update(`${encodedHeader}.${encodedPayload}`)
-    const expected = hmac
-      .digest('base64')
-      .replace(/=/g, '')
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
+    const expected = hmac.digest('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
     if (expected !== signature) return null
 
     const payload = JSON.parse(decodeBase64Url(encodedPayload).toString('utf8'))

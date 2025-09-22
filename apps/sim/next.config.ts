@@ -1,4 +1,3 @@
-import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from 'next'
 import { env, isTruthy } from './lib/env'
 import { isDev, isHosted, isProd } from './lib/environment'
@@ -227,4 +226,4 @@ const sentryConfig = {
   },
 }
 
-export default isDev ? nextConfig : withSentryConfig(nextConfig, sentryConfig)
+export default nextConfig

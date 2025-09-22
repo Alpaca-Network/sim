@@ -28,16 +28,18 @@ app:
   env:
     NEXT_PUBLIC_APP_URL: "https://simstudio.acme.com"
     BETTER_AUTH_URL: "https://simstudio.acme.com"
-    SOCKET_SERVER_URL: "https://simstudio-ws.acme.com"
     NEXT_PUBLIC_SOCKET_URL: "https://simstudio-ws.acme.com"
-    
+
     # Security settings (REQUIRED - replace with your own secure secrets)
     BETTER_AUTH_SECRET: "your-secure-production-auth-secret-here"
     ENCRYPTION_KEY: "your-secure-production-encryption-key-here"
-    
+
     NODE_ENV: "production"
     NEXT_TELEMETRY_DISABLED: "1"
-    
+
+    # Internal socket server URL (for service-to-service communication)
+    SOCKET_SERVER_URL: "http://sim-realtime:3002"
+
     # GCP-specific environment variables
     GOOGLE_CLOUD_PROJECT: "your-project-id"
     GOOGLE_CLOUD_REGION: "us-central1"
@@ -63,7 +65,6 @@ realtime:
   env:
     NEXT_PUBLIC_APP_URL: "https://simstudio.acme.com"
     BETTER_AUTH_URL: "https://simstudio.acme.com"
-    NEXT_PUBLIC_SOCKET_URL: "https://simstudio-ws.acme.com"
     BETTER_AUTH_SECRET: "your-secure-production-auth-secret-here"
     ALLOWED_ORIGINS: "https://simstudio.acme.com"
     NODE_ENV: "production"

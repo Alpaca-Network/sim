@@ -43,11 +43,5 @@
   "postStartCommand": "bash -c 'if [ ! -f ~/.bashrc ] || ! grep -q \"sim-start\" ~/.bashrc; then cp .devcontainer/.bashrc ~/.bashrc; fi'",
 
   "remoteUser": "bun",
-
-  "features": {
-    "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/prulloac/devcontainer-features/bun:1": {
-      "version": "latest"
-    }
-  }
+  "features": {}
 }

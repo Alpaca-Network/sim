@@ -1,6 +1,9 @@
 'use client'
 
 import { useEffect } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useBrandConfig } from '@/lib/branding/branding'
 import Nav from '@/app/(landing)/components/nav/nav'
 import AuthBackground from './components/auth-background'
 
@@ -15,6 +18,8 @@ function isColorDark(hexColor: string): boolean {
 }
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  const brand = useBrandConfig()
+
   useEffect(() => {
     // Check if brand background is dark and add class accordingly
     const rootStyle = getComputedStyle(document.documentElement)
@@ -31,6 +36,25 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <main className='relative flex min-h-screen flex-col font-geist-sans text-foreground'>
         {/* Header - Nav handles all conditional logic */}
         <Nav hideAuthButtons={true} variant='auth' />
+
+        {/* Header */}
+        <div className='relative z-10 px-6 pt-9'>
+          <div className='mx-auto max-w-7xl'>
+            <Link href='/' className='inline-flex'>
+              {brand.logoUrl ? (
+                <Image
+                  src={brand.logoUrl}
+                  alt={`${brand.name} Logo`}
+                  width={56}
+                  height={56}
+                  className='h-[56px] w-[56px] object-contain'
+                />
+              ) : (
+                <Image src='/sim.svg' alt={`${brand.name} Logo`} width={56} height={56} />
+              )}
+            </Link>
+          </div>
+        </div>
 
         {/* Content */}
         <div className='relative z-30 flex flex-1 items-center justify-center px-4 pb-24'>

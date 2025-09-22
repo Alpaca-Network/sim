@@ -12,7 +12,7 @@
     "dev:classic": "next dev",
     "dev:sockets": "bun run socket-server/index.ts",
     "dev:full": "concurrently -n \"NextJS,Realtime\" -c \"cyan,magenta\" \"bun run dev\" \"bun run dev:sockets\"",
-    "build": "next build --turbopack",
+    "build": "NODE_OPTIONS='--max-old-space-size=4096' NEXT_DISABLE_SENTRY=1 next build",
     "start": "next start",
     "prepare": "cd ../.. && bun husky",
     "test": "vitest run",
@@ -155,6 +155,7 @@
     "postcss": "^8",
     "react-email": "^4.0.13",
     "tailwindcss": "^3.4.1",
+    "@tailwindcss/postcss": "^4.0.0-alpha.34",
     "typescript": "^5.7.3",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.8"

@@ -155,7 +155,8 @@ export function generateRuntimeCSP(): string {
     } catch {}
   }
   socketUrl = socketUrl || 'http://localhost:3002'
-  const socketWsUrl = socketUrl.replace('http://', 'ws://').replace('https://', 'wss://') || 'ws://localhost:3002'
+  const socketWsUrl =
+    socketUrl.replace('http://', 'ws://').replace('https://', 'wss://') || 'ws://localhost:3002'
 
   return `
     default-src 'self';
