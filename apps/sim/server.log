@@ -1,0 +1,30 @@
+$ next dev --turbo --port 3000
+   ▲ Next.js 15.4.1 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://172.30.0.2:3000
+   - Environments: .env
+   - Experiments (use with caution):
+     ✓ optimizeCss
+     ⨯ turbopackSourceMaps
+
+ ✓ Starting...
+ ○ Compiling instrumentation Node.js ...
+ ✓ Compiled instrumentation Node.js in 3.7s
+ ✓ Compiled instrumentation Edge in 253ms
+ ✓ Compiled middleware in 296ms
+[Main Instrumentation] register() called, environment: { NEXT_RUNTIME: 'nodejs', NODE_ENV: 'development' }
+[Main Instrumentation] Loading Node.js instrumentation...
+[Main Instrumentation] Calling Node.js register()...
+[2025-09-21T17:07:50.331Z] [INFO] [OtelInstrumentation] OpenTelemetry instrumentation initialized for server-side telemetry
+ ✓ Ready in 6.3s
+[Main Instrumentation] register() called, environment: { NEXT_RUNTIME: 'edge', NODE_ENV: 'development' }
+[Main Instrumentation] Loading Edge Runtime instrumentation...
+[Main Instrumentation] Calling Edge Runtime register()...
+[2025-09-21T17:07:50.457Z] [INFO] [EdgeInstrumentation] Edge Runtime instrumentation initialized
+ ○ Compiling /api/workspaces ...
+ ✓ Compiled /api/workspaces in 3.9s
+[2m2025-09-21T17:07:54.744Z[0m [33mWARN[0m [1m[Better Auth]:[0m Social provider github is missing clientId or clientSecret
+[2m2025-09-21T17:07:54.745Z[0m [33mWARN[0m [1m[Better Auth]:[0m Social provider google is missing clientId or clientSecret
+ GET /api/workspaces 401 in 4308ms
+[2025-09-21T17:08:06.006Z] [INFO] [OtelInstrumentation] OpenTelemetry SDK shut down successfully
+[?25h

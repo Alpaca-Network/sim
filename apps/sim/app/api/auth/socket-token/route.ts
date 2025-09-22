@@ -35,7 +35,7 @@ export async function POST() {
       sub: session.user.id,
       name: session.user.name || session.user.email || 'User',
       email: session.user.email,
-      org: session.session?.activeOrganizationId || null,
+      org: (session.session as any)?.activeOrganizationId || null,
       iat: nowSec,
       exp: expSec,
       // Token purpose scoping
