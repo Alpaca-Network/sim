@@ -32,6 +32,8 @@ app:
     AZURE_OPENAI_API_KEY: ""
     AZURE_OPENAI_ENDPOINT: ""
     AZURE_OPENAI_API_VERSION: ""
+    GATEWAYZ_API_KEY: ""
+    GATEWAYZ_BASE_URL: ""
     GOOGLE_CLIENT_ID: ""
     GOOGLE_CLIENT_SECRET: ""
     GITHUB_CLIENT_ID: ""
@@ -348,6 +350,14 @@ serviceAccount:
   annotations:
     iam.gke.io/gcp-service-account: "sim-workload-identity@buildz-471215.iam.gserviceaccount.com"
   name: "sim-service-account"
+
+extraVolumes:
+  - name: uploads
+    emptyDir: {}
+
+extraVolumeMounts:
+  - name: uploads
+    mountPath: /app/apps/sim/uploads
 
 podSecurityPolicy:
   enabled: false

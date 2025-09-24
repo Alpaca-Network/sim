@@ -29,6 +29,7 @@ import { openaiProvider } from '@/providers/openai'
 import { openRouterProvider } from '@/providers/openrouter'
 import type { ProviderConfig, ProviderId, ProviderToolConfig } from '@/providers/types'
 import { xAIProvider } from '@/providers/xai'
+import { gatewayzProvider } from '@/providers/gatewayz'
 import { useCustomToolsStore } from '@/stores/custom-tools/store'
 import { useProvidersStore } from '@/stores/providers/store'
 
@@ -98,6 +99,11 @@ export const providers: Record<
     ...ollamaProvider,
     models: getProviderModelsFromDefinitions('ollama'),
     modelPatterns: PROVIDER_DEFINITIONS.ollama.modelPatterns,
+  },
+  gatewayz: {
+    ...gatewayzProvider,
+    models: [], // Will be determined by the API or configured separately
+    modelPatterns: [], // No specific patterns for gatewayz as it's a gateway
   },
 }
 

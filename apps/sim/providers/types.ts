@@ -11,6 +11,7 @@ export type ProviderId =
   | 'groq'
   | 'ollama'
   | 'openrouter'
+  | 'gatewayz'
 
 /**
  * Model pricing information per million tokens

@@ -13,6 +13,7 @@ import {
   AzureIcon,
   CerebrasIcon,
   DeepseekIcon,
+  GatewayzIcon,
   GeminiIcon,
   GroqIcon,
   OllamaIcon,
@@ -673,6 +674,19 @@ export const PROVIDER_DEFINITIONS: Record<string, ProviderDefinition> = {
     modelPatterns: [],
     icon: OllamaIcon,
     models: [], // Populated dynamically
+  },
+  gatewayz: {
+    id: 'gatewayz',
+    name: 'Gatewayz',
+    description: 'Unified inference gateway for multiple AI models',
+    defaultModel: '', // Will be determined by the gateway
+    modelPatterns: [], // No specific patterns as it's a gateway
+    icon: GatewayzIcon,
+    capabilities: {
+      toolUsageControl: true,
+      temperature: { min: 0, max: 2 },
+    },
+    models: [], // Will be populated dynamically or configured separately
   },
 }
 
