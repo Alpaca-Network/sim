@@ -2,6 +2,18 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useConsoleStore } from '@/stores/panel/console/store'
 import type { ConsoleUpdate } from '@/stores/panel/console/types'
 
+// Mock localStorage for zustand persist middleware
+const localStorageMock = {
+  getItem: vi.fn(() => null),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+  length: 0,
+  key: vi.fn(),
+}
+
+vi.stubGlobal('localStorage', localStorageMock)
+
 vi.stubGlobal('crypto', {
   randomUUID: vi.fn(() => 'test-uuid-123'),
 })
