@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useConsoleStore } from '@/stores/panel/console/store'
 import type { ConsoleUpdate } from '@/stores/panel/console/types'
+
+// Unmock the console store so we test the real implementation
+vi.unmock('@/stores/panel/console/store')
+
+import { useConsoleStore } from '@/stores/panel/console/store'
 
 vi.stubGlobal('crypto', {
   randomUUID: vi.fn(() => 'test-uuid-123'),

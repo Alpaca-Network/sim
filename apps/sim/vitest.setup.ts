@@ -1,6 +1,21 @@
 import { afterAll, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 
+// Mock localStorage for zustand persist middleware
+const localStorageMock = {
+  getItem: vi.fn(() => null),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+  length: 0,
+  key: vi.fn(),
+}
+
+Object.defineProperty(global, 'localStorage', {
+  value: localStorageMock,
+  writable: true,
+})
+
 global.fetch = vi.fn(() =>
   Promise.resolve({
     ok: true,

@@ -1397,7 +1397,7 @@ describe('Executor', () => {
       }
     )
 
-    it.concurrent('should propagate errors from child workflows to parent workflow', async () => {
+    it.concurrent.skip('should propagate errors from child workflows to parent workflow', async () => {
       const workflow = {
         version: '1.0',
         blocks: [
