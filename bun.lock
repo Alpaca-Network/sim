@@ -111,6 +111,7 @@
         "@vercel/speed-insights": "^1.2.0",
         "ai": "^4.3.2",
         "better-auth": "1.2.9",
+        "binary-extensions": "^2.3.0",
         "browser-image-compression": "^2.0.2",
         "cheerio": "1.1.2",
         "class-variance-authority": "^0.7.1",
