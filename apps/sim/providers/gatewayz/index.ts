@@ -1,18 +1,9 @@
 import OpenAI from 'openai'
-import { createLogger } from '@/lib/logs/console/logger'
 import { env } from '@/lib/env'
+import { createLogger } from '@/lib/logs/console/logger'
 import type { StreamingExecution } from '@/executor/types'
-import type {
-  ProviderConfig,
-  ProviderRequest,
-  ProviderResponse,
-  TimeSegment,
-} from '@/providers/types'
-import {
-  prepareToolExecution,
-  prepareToolsWithUsageControl,
-  trackForcedToolUsage,
-} from '@/providers/utils'
+import type { ProviderConfig, ProviderRequest, ProviderResponse } from '@/providers/types'
+import { prepareToolExecution, prepareToolsWithUsageControl } from '@/providers/utils'
 import { executeTool } from '@/tools'
 
 const logger = createLogger('GatewayzProvider')
@@ -69,7 +60,9 @@ export const gatewayzProvider: ProviderConfig = {
   models: [], // Will be populated dynamically
   defaultModel: '', // Will be determined by the gateway
 
-  executeRequest: async (request: ProviderRequest): Promise<ProviderResponse | StreamingExecution> => {
+  executeRequest: async (
+    request: ProviderRequest
+  ): Promise<ProviderResponse | StreamingExecution> => {
     logger.info('Preparing Gatewayz request', {
       model: request.model,
       hasSystemPrompt: !!request.systemPrompt,
@@ -178,7 +171,7 @@ async function executeNonStreamingRequest(
       return {
         content: message.content || '',
         model: request.model,
-        toolCalls: message.tool_calls.map(tc => ({
+        toolCalls: message.tool_calls.map((tc) => ({
           name: tc.function.name,
           arguments: JSON.parse(tc.function.arguments),
         })),
