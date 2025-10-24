@@ -1397,58 +1397,61 @@ describe('Executor', () => {
       }
     )
 
-    it.concurrent.skip('should propagate errors from child workflows to parent workflow', async () => {
-      const workflow = {
-        version: '1.0',
-        blocks: [
-          {
-            id: 'starter',
-            position: { x: 0, y: 0 },
-            metadata: { id: BlockType.STARTER, name: 'Starter Block' },
-            config: { tool: 'starter', params: {} },
-            inputs: {} as Record<string, ParamType>,
-            outputs: {} as Record<string, BlockOutput>,
-            enabled: true,
-          },
-          {
-            id: 'workflow-block',
-            position: { x: 100, y: 0 },
-            metadata: { id: BlockType.WORKFLOW, name: 'Failing Workflow Block' },
-            config: {
-              tool: 'workflow',
-              params: {
-                workflowId: 'failing-child-workflow',
-                input: {},
-              },
+    it.concurrent.skip(
+      'should propagate errors from child workflows to parent workflow',
+      async () => {
+        const workflow = {
+          version: '1.0',
+          blocks: [
+            {
+              id: 'starter',
+              position: { x: 0, y: 0 },
+              metadata: { id: BlockType.STARTER, name: 'Starter Block' },
+              config: { tool: 'starter', params: {} },
+              inputs: {} as Record<string, ParamType>,
+              outputs: {} as Record<string, BlockOutput>,
+              enabled: true,
             },
-            inputs: {} as Record<string, ParamType>,
-            outputs: { output: 'json' as BlockOutput },
-            enabled: true,
-          },
-        ],
-        connections: [{ source: 'starter', target: 'workflow-block' }],
-        loops: {},
-      }
+            {
+              id: 'workflow-block',
+              position: { x: 100, y: 0 },
+              metadata: { id: BlockType.WORKFLOW, name: 'Failing Workflow Block' },
+              config: {
+                tool: 'workflow',
+                params: {
+                  workflowId: 'failing-child-workflow',
+                  input: {},
+                },
+              },
+              inputs: {} as Record<string, ParamType>,
+              outputs: { output: 'json' as BlockOutput },
+              enabled: true,
+            },
+          ],
+          connections: [{ source: 'starter', target: 'workflow-block' }],
+          loops: {},
+        }
 
-      const executor = new Executor({
-        workflow,
-        workflowInput: {},
-      })
+        const executor = new Executor({
+          workflow,
+          workflowInput: {},
+        })
 
-      const result = await executor.execute('test-workflow-id')
+        const result = await executor.execute('test-workflow-id')
 
-      // Verify that child workflow errors propagate to parent
-      expect(result).toBeDefined()
-      if ('success' in result) {
-        // The workflow should fail due to child workflow failure
-        expect(result.success).toBe(false)
-        expect(result.error).toBeDefined()
+        // Verify that child workflow errors propagate to parent
+        expect(result).toBeDefined()
+        if ('success' in result) {
+          // The workflow should fail due to child workflow failure
+          expect(result.success).toBe(false)
+          expect(result.error).toBeDefined()
 
-        // Error message should indicate it came from a child workflow
-        if (result.error && typeof result.error === 'string') {
-          expect(result.error).toContain('Error in child workflow')
+          // Error message should indicate it came from a child workflow
+          if (result.error && typeof result.error === 'string') {
+            expect(result.error).toContain('Error in child workflow')
+          }
         }
       }
-    })
+    )
   })
 })
