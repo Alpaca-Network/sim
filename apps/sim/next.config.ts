@@ -60,10 +60,22 @@ const nextConfig: NextConfig = {
     'playwright-core',
     '@browserbasehq/stagehand',
     'chromium-bidi',
+    '@azure/storage-blob',
   ],
   experimental: {
     optimizeCss: true,
     turbopackSourceMaps: false,
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Don't resolve 'dns' module on the client side
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        dns: false,
+        util: false,
+      }
+    }
+    return config
   },
   ...(isDev && {
     allowedDevOrigins: [
