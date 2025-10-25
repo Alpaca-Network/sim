@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { defineI18nUI } from 'fumadocs-ui/i18n'
 import { DocsLayout } from 'fumadocs-ui/layouts/docs'
 import { RootProvider } from 'fumadocs-ui/provider'
@@ -47,7 +46,7 @@ const GitHubLink = () => (
 )
 
 type LayoutProps = {
-  children: ReactNode
+  children: React.ReactNode
   params: Promise<{ lang: string }>
 }
 
