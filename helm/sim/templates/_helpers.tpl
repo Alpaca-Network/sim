@@ -168,14 +168,16 @@ Database URL for internal PostgreSQL
 {{- $username := .Values.postgresql.auth.username }}
 {{- $database := .Values.postgresql.auth.database }}
 {{- $sslMode := ternary "require" "disable" .Values.postgresql.tls.enabled }}
-{{- printf "postgresql://%s:$(POSTGRES_PASSWORD)@%s:%v/%s?sslmode=%s" $username $host $port $database $sslMode }}
+{{- $password := .Values.postgresql.auth.password }}
+{{- printf "postgresql://%s:%s@%s:%v/%s?sslmode=%s" $username $password $host $port $database $sslMode }}
 {{- else if .Values.externalDatabase.enabled }}
 {{- $host := .Values.externalDatabase.host }}
 {{- $port := .Values.externalDatabase.port }}
 {{- $username := .Values.externalDatabase.username }}
 {{- $database := .Values.externalDatabase.database }}
 {{- $sslMode := .Values.externalDatabase.sslMode }}
-{{- printf "postgresql://%s:$(EXTERNAL_DB_PASSWORD)@%s:%v/%s?sslmode=%s" $username $host $port $database $sslMode }}
+{{- $password := .Values.externalDatabase.password }}
+{{- printf "postgresql://%s:%s@%s:%v/%s?sslmode=%s" $username $password $host $port $database $sslMode }}
 {{- end }}
 {{- end }}
 
