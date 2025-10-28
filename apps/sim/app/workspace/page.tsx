@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { LoadingAgent } from '@/components/ui/loading-agent'
 import { useSession } from '@/lib/auth-client'
@@ -11,9 +11,11 @@ const logger = createLogger('WorkspacePage')
 export default function WorkspacePage() {
   const router = useRouter()
   const { data: session, isPending } = useSession()
+  const [isRedirecting, setIsRedirecting] = useState(true)
 
   useEffect(() => {
     const redirectToFirstWorkspace = async () => {
+      setIsRedirecting(true)
       // Wait for session to load
       if (isPending) {
         return
@@ -56,6 +58,11 @@ export default function WorkspacePage() {
         const response = await fetch('/api/workspaces')
 
         if (!response.ok) {
+          if (response.status === 401) {
+            logger.warn('Unauthorized when fetching workspaces, redirecting to login')
+            router.replace('/login')
+            return
+          }
           throw new Error('Failed to fetch workspaces')
         }
 
@@ -103,7 +110,12 @@ export default function WorkspacePage() {
         router.replace(`/workspace/${firstWorkspace.id}/w`)
       } catch (error) {
         logger.error('Error fetching workspaces for redirect:', error)
-        // Don't redirect if there's an error - let the user stay on the page
+        // Redirect to login on error to avoid blank screen
+        router.replace('/login')
+        return
+      }
+      finally {
+        setIsRedirecting(false)
       }
     }
 
@@ -115,7 +127,7 @@ export default function WorkspacePage() {
   }, [session, isPending, router])
 
   // Show loading state while we determine where to redirect
-  if (isPending) {
+  if (isPending || isRedirecting) {
     return (
       <div className='flex h-screen w-full items-center justify-center'>
         <div className='flex flex-col items-center justify-center text-center align-middle'>
